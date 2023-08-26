@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "electron .",
     "lint": "eslint . --ext js --fix",
-    "build": "npm run build:win && npm run build:mac",
+    "build": "yarn run build:win && yarn run build:mac",
     "build:win": "electron-builder --windows nsis:x64 -p always",
     "build:mac": "electron-builder build --mac -p always"
   },
