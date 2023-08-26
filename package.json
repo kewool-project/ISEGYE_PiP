@@ -44,7 +44,7 @@
     "publish": [
       {
         "provider": "github",
-        "owner": "kewool",
+        "owner": "kewool-project",
         "repo": "IsekaiPiP"
       }
     ],
