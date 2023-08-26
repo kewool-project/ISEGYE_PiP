@@ -7,7 +7,6 @@ const { autoUpdater } = require("electron-updater");
 const twitch = require("./lib.js");
 const config = require("./config.json");
 const Store = require("electron-store");
-require("dotenv").config();
 
 const page_dir = path.join(__dirname, "/src/");
 const clientId = config["CLIENT_ID"];
