@@ -60,10 +60,6 @@ function createMainWindow() {
   mainWin.on("closed", () => {
     mainWin = null;
   });
-  mainWin.webContents.setWindowOpenHandler(({ url }) => {
-    shell.openExternal(url);
-    return { action: "deny" };
-  });
 }
 
 function createBackground() {
@@ -242,9 +238,44 @@ app.on("activate", () => {
   if (mainWin === null) createMainWindow();
 });
 
+ipcMain.on("logout", async () => {
+  let logoutWin = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      contextIsolation: false,
+      nodeIntegration: true,
+    },
+  });
+  logoutWin.webContents.setAudioMuted(true);
+  let tempWin = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      contextIsolation: false,
+      nodeIntegration: true,
+    },
+  });
+  tempWin.loadURL("https://twitch.tv/");
+  tempWin.webContents.setAudioMuted(true);
+  tempWin.webContents.on("did-finish-load", () => {
+    logoutWin.loadURL("https://twitch.tv/");
+    logoutWin.webContents.on("did-finish-load", () => {
+      logoutWin.webContents.executeJavaScript(
+        `
+        document.querySelector("#root > div > div.Layout-sc-1xcs6mc-0.kBprba > nav > div > div.Layout-sc-1xcs6mc-0.gdKXDc > div.Layout-sc-1xcs6mc-0.cXWuNa > div > div > div > div > button").click();
+        document.querySelector("body > div.ScReactModalBase-sc-26ijes-0.kXkHnj.tw-dialog-layer.tw-root--theme-dark > div > div > div > div > div > div > div > div > div > div > div > div.simplebar-scroll-content > div > div > div:nth-child(5) > button").click();
+        `,
+      );
+      setTimeout(() => {
+        app.exit();
+      }, 2000);
+    });
+  });
+});
+
 ipcMain.on("getUserProfile", async (evt) => {
-  const redacted = (await redactedFunc()).b;
-  const user = await apiClient.users.getUserById(redacted);
+  const user = await apiClient.users.getUserById(
+    (await apiClient.getTokenInfo()).userId,
+  );
   evt.returnValue = {
     name: user?.name,
     profile: user?.profilePictureUrl,

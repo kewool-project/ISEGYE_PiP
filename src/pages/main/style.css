@@ -119,9 +119,66 @@ header .header_profile {
   display: flex;
   justify-content: center;
 }
+header .header_profile:hover .profile_popup {
+  visibility: visible;
+  opacity: 1;
+}
 header .header_profile img {
   border-radius: 50%;
   cursor: pointer;
+}
+
+.profile_popup {
+  position: absolute;
+  right: 24px;
+  top: 97px;
+  width: 172px;
+  overflow: hidden;
+  display: flex;
+  visibility: hidden;
+  opacity: 0;
+  padding: 8px 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border-radius: 8px;
+  background-color: #232426;
+  box-shadow: 0 12px 24px 0 rgba(0, 0, 0, 0.50);
+  z-index: 100;
+  transition: all 0.2s ease-in;
+}
+.profile_popup:hover {
+  visibility: visible;
+  opacity: 1;
+}
+.profile_popup a {
+  display: flex;
+  padding: 4px 12px;
+  justify-content: space-between;
+  align-items: center;
+  align-self: stretch;
+  cursor: pointer;
+}
+.profile_popup a:hover {
+  background-color: #37393D;
+}
+.profile_popup a p {
+  color: #B2B2C2;
+  font-family: "SUIT";
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 300;
+  line-height: 150%;
+}
+.profile_popup a img {
+  width: 16px;
+  height: 16px;
+}
+.profile_popup span {
+  display: block;
+  width: 148px;
+  height: 2px;
+  background-color: #37393D;
 }
 
 #panel {

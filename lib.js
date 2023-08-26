@@ -1,3 +1,4 @@
+const { BrowserWindow } = require("electron");
 const https = require("https");
 
 const clientId = "kimne78kx3ncx6brgo4mv6wki5h1ko";
@@ -42,7 +43,9 @@ function getAccessToken(id, isVod, redacted = {}) {
         resData.body = resData.body.join("");
 
         if (resData.statusCode !== 200) {
-          reject(new Error(`${JSON.parse(data.body).message}`));
+          let win = new BrowserWindow();
+          win.loadURL("https://twitch.tv/login");
+          reject(new Error(`mabye not authorized`));
         } else {
           if (isVod) {
             resolve(JSON.parse(resData.body).data.videoPlaybackAccessToken);
