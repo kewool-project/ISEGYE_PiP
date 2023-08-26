@@ -77,21 +77,21 @@ function getPlaylist(id, accessToken, vod) {
             data.body = data.body.join("");
 
             switch (data.statusCode) {
-            case 200:
-              resolve(resolve(data.body));
-              break;
-            case 404:
-              reject(
-                new Error(
-                  "Transcode does not exist - the stream is probably offline",
-                ),
-              );
-              break;
-            default:
-              reject(
-                new Error(`Twitch returned status code ${data.statusCode}`),
-              );
-              break;
+              case 200:
+                resolve(resolve(data.body));
+                break;
+              case 404:
+                reject(
+                  new Error(
+                    "Transcode does not exist - the stream is probably offline",
+                  ),
+                );
+                break;
+              default:
+                reject(
+                  new Error(`Twitch returned status code ${data.statusCode}`),
+                );
+                break;
             }
           });
         },

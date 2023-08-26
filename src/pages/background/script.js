@@ -1,29 +1,32 @@
 const { ipcRenderer } = require("electron");
+const Store = require("electron-store");
+const store = new Store();
 
 let getStream;
-let login = false;
-
-getStream = setInterval(() => {
-  if (login) ipcRenderer.send("getOnePickStream");
-}, 3000);
 
 ipcRenderer.on("login", () => {
-  login = true;
-});
-
-ipcRenderer.on("getOnePickStream_reply", () => {
-  clearInterval(getStream);
-});
-
-ipcRenderer.on("PIPClose", () => {
-  clearInterval(getStream);
   getStream = setInterval(() => {
-    ipcRenderer.send("isStreamOff");
-  }, 30000);
-});
-ipcRenderer.on("isStreamOff_reply", () => {
-  clearInterval(getStream);
-  getStream = setInterval(() => {
-    if (login) ipcRenderer.send("getOnePickStream");
-  }, 3000);
+    const auto_start = store.get("auto_start");
+    store.get("pip_order").forEach((e) => {
+      if (
+        auto_start[e].enabled &&
+        !auto_start[e].closed &&
+        !auto_start[e].status
+      ) {
+        ipcRenderer.send("getStream", e);
+      } else if (
+        auto_start[e].enabled &&
+        auto_start[e].closed &&
+        !auto_start[e].status
+      ) {
+        ipcRenderer.send("isStreamOff", e);
+      } else if (
+        auto_start[e].enabled &&
+        !auto_start[e].closed &&
+        auto_start[e].status
+      ) {
+        ipcRenderer.send("isStreamOffWhileOn", e);
+      }
+    });
+  }, 10000);
 });

@@ -39,8 +39,8 @@ async function redactedFunc() {
 
 function createMainWindow() {
   mainWin = new BrowserWindow({
-    width: 756,
-    height: 585,
+    width: 560,
+    height: 596,
     frame: false,
     webPreferences: {
       contextIsolation: false,
@@ -98,7 +98,7 @@ function createPIPWin(url, name) {
     opacity: store.get("pip_options")[name].opacity,
   });
   streamWin[name].pip.setAspectRatio(16 / 9);
-  // streamWin[name].pip.setMenu(null);
+  streamWin[name].pip.setMenu(null);
   streamWin[name].pip.loadURL(
     "file://" +
       path.join(page_dir, `pages/pip/index.html?url=${url}&name=${name}`),
@@ -171,17 +171,17 @@ if (!lock) {
 }
 
 app.on("ready", () => {
-  // store.delete("order"); //test
+  // store.delete("pip_order"); //test
   // store.delete("auto_start"); //test
   // store.delete("pip_options"); //test
-  if (!store.get("order")) {
-    store.set("order", config["CHANNEL_NAME"]);
+  if (!store.get("pip_order")) {
+    store.set("pip_order", config["CHANNEL_NAME"]);
     app.setLoginItemSettings({
       openAtLogin: true,
     });
   }
   if (!store.get("auto_start")) {
-    const order = store.get("order");
+    const order = store.get("pip_order");
     let autoStart = {};
     order.forEach((e) => {
       autoStart[e] = {};
@@ -191,14 +191,14 @@ app.on("ready", () => {
     });
     store.set("auto_start", autoStart);
   } else {
-    const order = store.get("order");
+    const order = store.get("pip_order");
     order.forEach((e) => {
       store.set(`auto_start.${e}.closed`, false);
       store.set(`auto_start.${e}.status`, false);
     });
   }
   if (!store.get("pip_options")) {
-    const order = store.get("order");
+    const order = store.get("pip_order");
     const { width, height } = screen.getPrimaryDisplay().workAreaSize;
     let pip_options = {};
     order.forEach((e) => {
@@ -252,7 +252,7 @@ ipcMain.on("getUserProfile", async (evt) => {
 });
 
 ipcMain.on("getChannelInfo", async (evt) => {
-  const res = await apiClient.users.getUsersByNames(store.get("order"));
+  const res = await apiClient.users.getUsersByNames(store.get("pip_order"));
   const info = await Promise.all(
     res.map(async (e) => {
       const stream = await apiClient.streams.getStreamByUserId(e.id);

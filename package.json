@@ -1,25 +1,26 @@
 {
-  "name": "twitch_pip",
-  "version": "1.0.0",
+  "name": "isekai_pip",
+  "version": "2.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "electron .",
+    "lint": "eslint . --ext js --fix",
     "build": "npm run build:win && npm run build:mac",
     "build:win": "electron-builder --windows nsis:x64 -p always",
     "build:mac": "electron-builder build --mac -p always"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kewool/twitch_pip.git"
+    "url": "https://github.com/kewool/IsekaiPiP.git"
   },
   "author": "kewool",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/kewool/twitch_pip/issues"
+    "url": "https://github.com/kewool/IsekaiPiP/issues"
   },
-  "homepage": "https://github.com/kewool/twitch_pip#readme",
+  "homepage": "https://github.com/kewool/IsekaiPiP#readme",
   "dependencies": {
     "@twurple/api": "^7.0.1",
     "@twurple/auth": "^7.0.1",
@@ -44,16 +45,16 @@
       {
         "provider": "github",
         "owner": "kewool",
-        "repo": "twitch_pip"
+        "repo": "IsekaiPiP"
       }
     ],
-    "productName": "twitch_pip",
-    "appId": "com.electron.twitch_pip",
+    "productName": "IsekaiPiP",
+    "appId": "com.electron.IsekaiPIP",
     "asar": true,
     "protocols": {
-      "name": "twitch_pip",
+      "name": "IsekaiPiP",
       "schemes": [
-        "twitch_pip"
+        "IsekaiPiP"
       ]
     },
     "win": {
@@ -70,13 +71,13 @@
       "icon": "./src/assets/icon4.png"
     },
     "dmg": {
-      "title": "twitch_pip",
+      "title": "IsekaiPiP",
       "icon": "./src/assets/icon4.png"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "shortcutName": "Twwitch PiP",
+      "shortcutName": "이세계PiP",
       "deleteAppDataOnUninstall": true,
       "perMachine": true
     },

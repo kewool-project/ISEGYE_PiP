@@ -2,44 +2,91 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>이세계 PIP</title>
-    <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon">
-    <link rel="icon" href="../../assets/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <link rel="stylesheet" type="text/css" href="../global.css">
-    <script src="script.js" defer></script>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>이세계 PIP</title>
+  <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="../../assets/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <link rel="stylesheet" type="text/css" href="../global.css">
+  <script src="script.js" defer></script>
 </head>
 
 <body>
-    <nav>
-        <div class="movement">
-            <p>Twitch PIP</p>
+  <nav>
+    <div class="nav_window">
+      <p>IsekaiPiP</p>
+      <div class="nav_window_button_container">
+        <div class="nav_window_button minimize">
+          <img src="../../assets/minimize.svg" />
         </div>
-        <div class="main_button_panel">
-            <button class="minimize" onclick="ipcRenderer.send('minimizeMainWin')"><img src="../../assets/minimize.svg"></button>
-            <button class="close" onclick="ipcRenderer.send('closeMainWin')"><img src="../../assets/close.svg"></button>
+        <div class="nav_window_button close">
+          <img src="../../assets/close_main.svg" />
         </div>
-    </nav>
-    <div class="padding">
-        <header>
-            <div>
-                <p class="channelPoints"><span>채널 포인트 획득 여부(메모리 사용량 증가):</span><input type="checkbox" id="channelPoints"><label for="channelPoints"></label></p>
+      </div>
+    </div>
+    <div class="nav_mac"></div>
+  </nav>
+  <header>
+    <div class="header_left">
+      <img src="../../assets/logo.svg" class="header_logo">
+      <img src="../../assets/logo_text.svg" class="header_logo_text"> 
+      <p>by Kewool</p>
+    </div>
+    <div class="header_right">
+      <div class="header_img header_update">
+        <div class="header_update_notification"></div>
+        <img src="../../assets/update.svg">
+      </div>
+      <div class="header_img header_setting">
+        <img src="../../assets/setting.svg" class="">
+      </div>
+      <div class="header_img header_refresh">
+        <img src="../../assets/refresh.svg">
+      </div>
+      <img src="../../assets/line.svg" class="header_line">
+      <div class="header_profile">
+        <img src="../../assets/guest.svg">
+      </div>
+    </div>
+  </header>
+  <div id="panel">
+    <div class="detail_background">
+      <div class="detail">
+        <img class="detail_thumnail" />
+        <div class="detail_info">
+          <div class="detail_info_left">
+            <div class="detail_info_name"></div>
+            <div class="detail_info_follows">
+              <p>팔로워</p>
+              <span></span>
             </div>
-            <button id="refresh">
-                <img src="../../assets/refresh.png">
-            </button>
-        </header>
-        <div id="panel">
+            <div class="detail_info_points">
+              <p>내 포인트</p>
+              <span></span>
+            </div>
+          </div>
+          <div class="detail_info_right">
+            <div class="detail_info_button">
+              <p></p>
+              <img src="../../assets/shortcut.svg" />
+            </div>
+            <div class="detail_info_auto">
+              <p>방송 자동 실행</p>
+              <div class="detail_info_auto_toggle">
+                <input type="checkbox" id="detail_info_auto_toggle_checkbox" />
+                <label for="detail_info_auto_toggle_checkbox">
+                  <div class="detail_info_auto_toggle_button"></div>
+                </label>
+              </div>
+            </div>
+          </div>
         </div>
+        <div class="social"></div>
+      </div>
     </div>
-    <div id="version">
-        <p id="version_num"></p>
-        <p id="version_update"></p>
-    </div>
-    <p class="developed">Developed by <a href="https://github.com/kewool" target="_blank">Kewool</a></p>
+  </div>
 </body>
 
 </html>

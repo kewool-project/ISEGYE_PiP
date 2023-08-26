@@ -1,4 +1,4 @@
-# twitch_pip
+# IsekaiPiP
 
 .env
 ```
