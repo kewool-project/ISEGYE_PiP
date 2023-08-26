@@ -13,14 +13,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kewool/IsekaiPiP.git"
+    "url": "https://github.com/kewool-project/IsekaiPiP.git"
   },
   "author": "kewool",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/kewool/IsekaiPiP/issues"
+    "url": "https://github.com/kewool-project/IsekaiPiP/issues"
   },
-  "homepage": "https://github.com/kewool/IsekaiPiP#readme",
+  "homepage": "https://github.com/kewool-project/IsekaiPiP#readme",
   "dependencies": {
     "@twurple/api": "^7.0.1",
     "@twurple/auth": "^7.0.1",
@@ -77,7 +77,7 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "shortcutName": "이세계PiP",
+      "shortcutName": "이세계 PiP",
       "deleteAppDataOnUninstall": true,
       "perMachine": true
     },
