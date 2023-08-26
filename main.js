@@ -10,7 +10,7 @@ const Store = require("electron-store");
 require("dotenv").config();
 
 const page_dir = path.join(__dirname, "/src/");
-const clientId = process.env.CLIENT_ID;
+const clientId = config["CLIENT_ID"];
 const redirectUri = config["REDIRECT_URI"];
 const authProvider = new ElectronAuthProvider({
   clientId,
