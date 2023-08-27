@@ -48,7 +48,7 @@ function createMainWindow() {
     icon: path.join(page_dir, "assets/icon.png"),
     resizable: false,
   });
-  mainWin.setMenu(null);
+  // mainWin.setMenu(null);
   mainWin.loadURL(
     "file://" +
       path.join(

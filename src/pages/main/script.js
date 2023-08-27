@@ -60,7 +60,7 @@ store.get("pip_order").forEach((e, i) => {
   div.addEventListener("click", (evt) => {
     if (evt.target.className === "panel_item_more") return;
     if (!pipDelay) {
-      ipcRenderer.send("openSelectPIP", e);
+      ipcRenderer.send("openSelectPIP", div.id);
       pipDelay = setTimeout(() => {
         pipDelay = null;
       }, 5000);
@@ -120,7 +120,6 @@ info.forEach((element, i) => {
   const startDate = new Date(element.startDate);
   const nowDate = new Date();
   let diff = nowDate.getTime() - startDate.getTime();
-  // get minutes between startDate and nowDate
   let diffTimes = Math.floor(diff / (1000 * 60));
   let diffTimeText = "";
   if (diffTimes >= 60 && element.isStream) {
@@ -249,6 +248,7 @@ function handleDrop(evt) {
   if (dragSource !== this) {
     dragSource.innerHTML = this.innerHTML;
     this.innerHTML = evt.dataTransfer.getData("text/html");
+    console.log(dragSource);
     dragSource.id = this.id;
     this.id = evt.dataTransfer.getData("id");
   }
