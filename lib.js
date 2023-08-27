@@ -187,11 +187,62 @@ function getLastStreamDate(channel) {
   });
 }
 
-function getChannelPoing(channel) {
-  
+function getChannelPoint(channel, redacted = {}) {
+  const data = [
+    {
+      operationName: "ChannelPointsContext",
+      variables: {
+        channelLogin: channel,
+      },
+      extensions: {
+        persistedQuery: {
+          version: 1,
+          sha256Hash:
+            "1530a003a7d374b0380b79db0be0534f30ff46e61cffa2bc0e2468a909fbc024",
+        },
+      },
+    },
+  ];
+
+  const options = {
+    hostname: "gql.twitch.tv",
+    port: 443,
+    path: "/gql",
+    method: "POST",
+    headers: {
+      "Client-id": clientId,
+      ...redacted,
+    },
+  };
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(options, (response) => {
+      var resData = {};
+      resData.statusCode = response.statusCode;
+      resData.body = [];
+      response.on("data", (chunk) => resData.body.push(chunk));
+      response.on("end", () => {
+        resData.body = resData.body.join("");
+
+        if (resData.statusCode !== 200) {
+          reject(new Error(`${JSON.parse(data.body).message}`));
+        } else {
+          resolve(
+            JSON.parse(resData.body)[0].data.community.channel.self
+              .communityPoints.balance,
+          );
+        }
+      });
+    });
+
+    req.on("error", (error) => reject(error));
+    req.write(JSON.stringify(data));
+    req.end();
+  });
 }
 
 module.exports = {
   getStream: getStream,
   getLastStreamDate: getLastStreamDate,
+  getChannelPoint: getChannelPoint,
 };

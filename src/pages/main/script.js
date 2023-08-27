@@ -194,6 +194,10 @@ info.forEach((element, i) => {
         store.set(`auto_start.${element.name}.enabled`, evt.target.checked);
       },
     );
+    docQuery(".detail_info_points span").innerText = ipcRenderer.sendSync(
+      "getChannelPoint",
+      element.name,
+    );
   });
   docId(element.name).append(more_img);
 });

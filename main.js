@@ -317,6 +317,12 @@ ipcMain.on("getChannelInfo", async (evt) => {
 //   };
 // });
 
+ipcMain.on("getChannelPoint", async (evt, name) => {
+  const redacted = (await redactedFunc()).a;
+  const res = await twitch.getChannelPoint(name, redacted);
+  evt.returnValue = res;
+});
+
 ipcMain.on("getStream", async (evt, name) => {
   const isStream = (await apiClient.streams.getStreamByUserName(name))
     ? true
