@@ -324,6 +324,10 @@ ipcMain.on("getChannelPoint", async (evt, name) => {
 });
 
 ipcMain.on("getStream", async (evt, name) => {
+  if (streamWin[name]?.pip) {
+    streamWin[name].pip.focus();
+    return;
+  }
   const isStream = (await apiClient.streams.getStreamByUserName(name))
     ? true
     : false;
