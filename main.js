@@ -47,14 +47,12 @@ function createMainWindow() {
     },
     icon: path.join(page_dir, "assets/icon.png"),
     resizable: false,
+    titleBarStyle: "hidden",
   });
   // mainWin.setMenu(null);
   mainWin.loadURL(
     "file://" +
-      path.join(
-        page_dir,
-        `pages/main/index.html?platform=${process.platform}}`,
-      ),
+      path.join(page_dir, `pages/main/index.html?platform=${process.platform}`),
   );
   mainWin.on("closed", () => {
     mainWin = null;
