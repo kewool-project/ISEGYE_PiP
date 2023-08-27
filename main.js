@@ -48,6 +48,10 @@ function createMainWindow() {
     icon: path.join(page_dir, "assets/icon.png"),
     resizable: false,
     titleBarStyle: "hidden",
+    trafficLightPosition: {
+      x: 12,
+      y: 12,
+    },
   });
   // mainWin.setMenu(null);
   mainWin.loadURL(
