@@ -2,5 +2,6 @@
     "CLIENT_ID": "m65puodpp4i8bvfrb27k1mrxr84e3z",
     "REDIRECT_URI": "http://localhost/",
     "CHANNEL_NAME": ["viichan6", "gosegugosegu", "cotton__123", "lilpaaaaaa", "jingburger", "vo_ine", "woowakgood", "111roentgenium"],
-    "TOOLTIP_NAME": "이세계 PiP"
+    "TOOLTIP_NAME": "이세계 PiP",
+    "RELEASE_URL": "https://github.com/kewool-project/IsekaiPiP/releases"
 }

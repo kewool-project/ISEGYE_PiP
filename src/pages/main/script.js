@@ -33,6 +33,7 @@ if (params.platform === "darwin") {
 docQuery(".detail_background").addEventListener("click", (evt) => {
   if (evt.target.className === "detail_background") {
     docQuery(".detail_background").style.display = "none";
+    docQuery(".detail_info_points span").innerText = "";
   }
 });
 
@@ -96,6 +97,42 @@ if (user.profile) {
   docQuery(".user_sign img").src = "../../assets/login.svg";
 }
 const info = ipcRenderer.sendSync("getChannelInfo");
+let diffTimeTemp = {};
+function moreInfoEvent(element) {
+  // const detail = ipcRenderer.sendSync("getChannelInfoDetail", e);
+  const detail_background = docQuery(".detail_background");
+  detail_background.style.display = "block";
+  if (element.isStream) {
+    docQuery(
+      ".detail_thumnail",
+    ).src = `https://static-cdn.jtvnw.net/previews-ttv/live_user_${element.name}-380x213.jpg`;
+    docQuery(".detail_info_button p").innerText = diffTimeTemp[element.name];
+  } else {
+    docQuery(".detail_thumnail").src =
+      "https://static-cdn.jtvnw.net/ttv-static/404_preview-380x213.jpg";
+    docQuery(".detail_info_button p").innerText =
+      "최근 방송 " + diffTimeTemp[element.name];
+  }
+  docQuery(".detail_info_name").innerText = element.displayName;
+  docQuery(".detail_info_follows span").innerText = beautyFollows(
+    element.follows,
+  );
+  docQuery(".detail_info_button").className = element.isStream
+    ? "detail_info_button is_stream"
+    : "detail_info_button is_not_stream";
+  docId("detail_info_auto_toggle_checkbox").checked =
+    store.get("auto_start")[element.name].enabled;
+  docId("detail_info_auto_toggle_checkbox").addEventListener(
+    "change",
+    (evt) => {
+      store.set(`auto_start.${element.name}.enabled`, evt.target.checked);
+    },
+  );
+  const channelPoint = ipcRenderer.invoke("getChannelPoint", element.name);
+  channelPoint.then((res) => {
+    docQuery(".detail_info_points span").innerText = res;
+  });
+}
 
 info.forEach((element, i) => {
   const panel_item = docId(element.name);
@@ -134,21 +171,20 @@ info.forEach((element, i) => {
     diff = nowDate.getTime() - new Date(element.lastStreamDate).getTime();
     diffTimes = Math.floor(diff / (1000 * 60));
     panel_item_stream_date.innerText = "최근 방송";
-    const lastStreamDate = document.createElement("span");
     if (diffTimes >= 1440) {
       diffTimes = Math.floor(diffTimes / 60 / 24);
       diffTimeText = `${diffTimes}일 전`;
-      lastStreamDate.innerText = diffTimeText;
     } else if (diffTimes >= 60) {
       diffTimes = Math.floor(diffTimes / 60);
       diffTimeText = `${diffTimes}시간 전`;
-      lastStreamDate.innerText = diffTimeText;
     } else if (diffTimes < 60) {
       diffTimeText = `${diffTimes}분 전`;
-      lastStreamDate.innerText = diffTimeText;
     }
+    const lastStreamDate = document.createElement("span");
+    lastStreamDate.innerText = diffTimeText;
     panel_item_stream_date.append(lastStreamDate);
   }
+  diffTimeTemp[element.name] = diffTimeText;
   if (element.isStream) panel_item_stream_date.classList.add("is_stream");
   panel_item_info.append(panel_item_stream_date);
 
@@ -165,47 +201,21 @@ info.forEach((element, i) => {
   more_img.src = "../../assets/more.svg";
   more_img.className = "panel_item_more";
   more_img.addEventListener("click", () => {
-    // const detail = ipcRenderer.sendSync("getChannelInfoDetail", e);
-    const detail_background = docQuery(".detail_background");
-    detail_background.style.display = "block";
-    if (element.isStream) {
-      docQuery(
-        ".detail_thumnail",
-      ).src = `https://static-cdn.jtvnw.net/previews-ttv/live_user_${element.name}-380x213.jpg`;
-      docQuery(".detail_info_button p").innerText = diffTimeText;
-    } else {
-      docQuery(".detail_thumnail").src =
-        "https://static-cdn.jtvnw.net/ttv-static/404_preview-380x213.jpg";
-      docQuery(".detail_info_button p").innerText = "최근 방송 " + diffTimeText;
-    }
-    docQuery(".detail_info_name").innerText = element.displayName;
-    docQuery(".detail_info_follows span").innerText = beautyFollows(
-      element.follows,
-    );
-    docQuery(".detail_info_button").className = element.isStream
-      ? "detail_info_button is_stream"
-      : "detail_info_button is_not_stream";
-    docId("detail_info_auto_toggle_checkbox").checked =
-      store.get("auto_start")[element.name].enabled;
-    docId("detail_info_auto_toggle_checkbox").addEventListener(
-      "change",
-      (evt) => {
-        store.set(`auto_start.${element.name}.enabled`, evt.target.checked);
-      },
-    );
-    docQuery(".detail_info_points span").innerText = ipcRenderer.sendSync(
-      "getChannelPoint",
-      element.name,
-    );
+    moreInfoEvent(element);
   });
   docId(element.name).append(more_img);
 });
 
 ipcRenderer.once("update_downloaded", () => {
   docQuery(".header_update").style.display = "flex";
-  docQuery(".header_update").addEventListener("click", () => {
-    ipcRenderer.send("restart_app");
-  });
+  if (params.platform === "darwin")
+    docQuery(".header_update").addEventListener("click", () => {
+      ipcRenderer.send("restart_app");
+    });
+  else
+    docQuery(".header_update").addEventListener("click", () => {
+      ipcRenderer.send("mac_update");
+    });
 });
 
 let columns = document.querySelectorAll(".panel_item");
@@ -248,9 +258,25 @@ function handleDrop(evt) {
   if (dragSource !== this) {
     dragSource.innerHTML = this.innerHTML;
     this.innerHTML = evt.dataTransfer.getData("text/html");
-    console.log(dragSource);
     dragSource.id = this.id;
     this.id = evt.dataTransfer.getData("id");
+    info.forEach((e) => {
+      if (e.name === dragSource.id) {
+        docQuery(`#${dragSource.id} .panel_item_more`).addEventListener(
+          "click",
+          () => {
+            moreInfoEvent(e);
+          },
+        );
+      } else if (e.name === this.id) {
+        docQuery(`#${this.id} .panel_item_more`).addEventListener(
+          "click",
+          () => {
+            moreInfoEvent(e);
+          },
+        );
+      }
+    });
   }
 
   evt.preventDefault();

@@ -319,10 +319,10 @@ ipcMain.on("getChannelInfo", async (evt) => {
 //   };
 // });
 
-ipcMain.on("getChannelPoint", async (evt, name) => {
+ipcMain.handle("getChannelPoint", async (evt, name) => {
   const redacted = (await redactedFunc()).a;
   const res = await twitch.getChannelPoint(name, redacted);
-  evt.returnValue = res;
+  return res;
 });
 
 ipcMain.on("getStream", async (evt, name) => {
@@ -424,6 +424,10 @@ ipcMain.on("isStreamOffWhileOn", async (evt, name) => {
 
 ipcMain.on("app_version", (evt) => {
   evt.sender.send("app_version_reply", { version: app.getVersion() });
+});
+
+ipcMain.on("mac_update", () => {
+  shell.openExternal(config.RELEASE_URL);
 });
 
 autoUpdater.on("update-downloaded", () => {
