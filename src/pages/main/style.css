@@ -50,6 +50,7 @@ nav .nav_mac {
   flex: 1;
   height: 37px;
   display: none;
+  -webkit-app-region: drag;
 }
 
 header {

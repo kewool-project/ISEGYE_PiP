@@ -53,7 +53,7 @@ function createMainWindow() {
       y: 12,
     },
   });
-  // mainWin.setMenu(null);
+  mainWin.setMenu(null);
   mainWin.loadURL(
     "file://" +
       path.join(page_dir, `pages/main/index.html?platform=${process.platform}`),

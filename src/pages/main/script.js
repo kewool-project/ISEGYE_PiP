@@ -24,7 +24,7 @@ function beautyFollows(follows) {
   else return `${first}만명`;
 }
 
-if (params.platform === "darwin") {
+if (params.platform !== "darwin") {
   docQuery(".nav_mac").style.display = "flex";
 } else {
   docQuery(".nav_window").style.display = "flex";
