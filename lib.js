@@ -187,6 +187,10 @@ function getLastStreamDate(channel) {
   });
 }
 
+function getChannelPoing(channel) {
+  
+}
+
 module.exports = {
   getStream: getStream,
   getLastStreamDate: getLastStreamDate,

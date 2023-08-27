@@ -293,7 +293,7 @@ header .header_profile img {
 }
 .detail {
   width: 380px;
-  margin: 112px 110px;
+  margin: 112px auto;
   border-radius: 8px;
   flex-direction: column;
   align-items: flex-start;

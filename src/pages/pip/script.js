@@ -195,7 +195,7 @@ function opacityControl(e) {
     store.set(`pip_options.${params.name}.opacity`, 1);
     docQuery(".control_opacity .control_progress").style.height = "100%";
   } else if (e.clientY - barTop >= barBotom) {
-    store.set(`pip_options.${params.name}.opacity`, 0.05);
+    store.set(`pip_options.${params.name}.opacity`, 0.1);
     docQuery(".control_opacity .control_progress").style.height = "0%";
   }
   ipcRenderer.send("changeOpacity", params.name);
