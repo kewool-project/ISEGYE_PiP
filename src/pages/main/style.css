@@ -119,6 +119,7 @@ header .header_profile {
   border-radius: 50%;
   display: flex;
   justify-content: center;
+  cursor: pointer;
 }
 header .header_profile:hover .profile_popup {
   visibility: visible;
@@ -126,7 +127,6 @@ header .header_profile:hover .profile_popup {
 }
 header .header_profile img {
   border-radius: 50%;
-  cursor: pointer;
 }
 
 .profile_popup {

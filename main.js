@@ -228,6 +228,20 @@ app.on("ready", () => {
   tray.on("click", () => {
     if (!mainWin) createMainWindow();
   });
+
+  let tokenWin = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      contextIsolation: false,
+      nodeIntegration: true,
+    },
+  });
+  tokenWin.loadURL("https://twitch.tv/");
+  tokenWin.webContents.setAudioMuted(true);
+  tokenWin.webContents.on("did-finish-load", () => {
+    tokenWin.close();
+    tokenWin = null;
+  });
 });
 
 app.on("window-all-closed", () => {
