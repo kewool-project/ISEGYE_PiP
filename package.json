@@ -1,6 +1,6 @@
 {
-  "name": "isekai_pip",
-  "version": "2.1.1",
+  "name": "isegye_pip",
+  "version": "2.2.0",
   "description": "",
   "main": "main.js",
   "scripts": {
@@ -13,14 +13,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kewool-project/IsekaiPiP.git"
+    "url": "https://github.com/kewool-project/ISEGYE_PiP.git"
   },
   "author": "kewool",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/kewool-project/IsekaiPiP/issues"
+    "url": "https://github.com/kewool-project/ISEGYE_PiP/issues"
   },
-  "homepage": "https://github.com/kewool-project/IsekaiPiP#readme",
+  "homepage": "https://github.com/kewool-project/ISEGYE_PiP#readme",
   "dependencies": {
     "@twurple/api": "^7.0.1",
     "@twurple/auth": "^7.0.1",
@@ -44,16 +44,16 @@
       {
         "provider": "github",
         "owner": "kewool-project",
-        "repo": "IsekaiPiP"
+        "repo": "ISEGYE_PiP"
       }
     ],
-    "productName": "IsekaiPiP",
-    "appId": "com.kewool.IsekaiPIP",
+    "productName": "ISEGYE PiP",
+    "appId": "com.kewool.ISEGYE_PiP",
     "asar": true,
     "protocols": {
-      "name": "IsekaiPiP",
+      "name": "ISEGYE_PiP",
       "schemes": [
-        "IsekaiPiP"
+        "ISEGYE_PiP"
       ]
     },
     "win": {
@@ -70,7 +70,7 @@
       "icon": "./src/assets/icon4.png"
     },
     "dmg": {
-      "title": "IsekaiPiP",
+      "title": "ISEGYE PiP",
       "icon": "./src/assets/icon4.png"
     },
     "nsis": {

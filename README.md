@@ -1,4 +1,4 @@
-# IsekaiPiP
+# ISEGYE PiP
 
 .env
 ```
