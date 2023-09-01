@@ -117,12 +117,12 @@ function createPointsWin(name) {
   streamWin[name].points.webContents.executeJavaScript(
     `
     setTimeout(() => {
-      document.querySelector("#channel-player > div > div.Layout-sc-1xcs6mc-0.lfucH.player-controls__right-control-group > div:nth-child(1) > div:nth-child(2) > div > button").click();
-      document.querySelector("body > div.ScReactModalBase-sc-26ijes-0.kXkHnj.tw-dialog-layer.tw-root--theme-dark > div > div > div > div > div > div > div > div:nth-child(2) > div:nth-child(3) > button").click();
-      document.querySelector("body > div.ScReactModalBase-sc-26ijes-0.kXkHnj.tw-dialog-layer.tw-root--theme-dark > div > div > div > div > div > div > div > div:nth-child(2) > div:nth-child(6) > div > div > div > div > label").click();
+      document.querySelector("#channel-player > div > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div > button").click();
+      document.querySelector("body > div:nth-child(19) > div > div > div > div > div:nth-child(1) > div > div > div:nth-child(2) > div:nth-child(3) > button").click();
+      document.querySelector("body > div:nth-child(20) > div > div > div > div > div:nth-child(1) > div > div > div:nth-child(2) > div:nth-child(5) > div > div > div > div > label").click();
     }, 5000);
     setInterval(()=>{
-        const box = document.querySelector("#live-page-chat > div > div > div > div > div > section > div > div.Layout-sc-1xcs6mc-0.bGyiZe.chat-input > div:nth-child(2) > div.Layout-sc-1xcs6mc-0.XTygj.chat-input__buttons-container > div.Layout-sc-1xcs6mc-0.hROlnu > div > div > div > div.Layout-sc-1xcs6mc-0.CDgpA > div > div > div > button");
+        const box = document.querySelector("#live-page-chat > div > div > div:nth-child(2) > div > div > section > div > div:nth-child(6) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > div > div > div > div:nth-child(2) > div > div > div > button");
         if(box) {
             box.click();
         }
@@ -168,6 +168,7 @@ if (!lock) {
 }
 
 app.on("ready", () => {
+  store.delete("app_start");
   // store.delete("pip_order"); //test
   // store.delete("auto_start"); //test
   // store.delete("pip_options"); //test
@@ -228,20 +229,6 @@ app.on("ready", () => {
   tray.on("click", () => {
     if (!mainWin) createMainWindow();
   });
-
-  let tokenWin = new BrowserWindow({
-    show: false,
-    webPreferences: {
-      contextIsolation: false,
-      nodeIntegration: true,
-    },
-  });
-  tokenWin.loadURL("https://twitch.tv/");
-  tokenWin.webContents.setAudioMuted(true);
-  tokenWin.webContents.on("did-finish-load", () => {
-    tokenWin.close();
-    tokenWin = null;
-  });
 });
 
 app.on("window-all-closed", () => {
@@ -268,6 +255,8 @@ ipcMain.on("logout", async () => {
       contextIsolation: false,
       nodeIntegration: true,
     },
+    width: 1080,
+    height: 720,
   });
   tempWin.loadURL("https://twitch.tv/");
   tempWin.webContents.setAudioMuted(true);
@@ -276,13 +265,15 @@ ipcMain.on("logout", async () => {
     logoutWin.webContents.on("did-finish-load", () => {
       logoutWin.webContents.executeJavaScript(
         `
-        document.querySelector("#root > div > div.Layout-sc-1xcs6mc-0.kBprba > nav > div > div.Layout-sc-1xcs6mc-0.gdKXDc > div.Layout-sc-1xcs6mc-0.cXWuNa > div > div > div > div > button").click();
-        document.querySelector("body > div.ScReactModalBase-sc-26ijes-0.kXkHnj.tw-dialog-layer.tw-root--theme-dark > div > div > div > div > div > div > div > div > div > div > div > div.simplebar-scroll-content > div > div > div:nth-child(5) > button").click();
+        setTimeout(() => {
+          document.querySelector("#root > div > div:nth-child(2) > nav > div > div:nth-child(3) > div:nth-child(7) > div > div > div > div > button").click();
+          document.querySelector("body > div:nth-child(18) > div > div > div > div > div > div > div > div > div > div > div > div:nth-child(3) > div > div > div:nth-child(5) > button").click();
+        }, 2000);
         `,
       );
       setTimeout(() => {
         app.exit();
-      }, 2000);
+      }, 3000);
     });
   });
 });
@@ -320,6 +311,21 @@ ipcMain.on("getChannelInfo", async (evt) => {
   backWin.webContents.send("login");
   autoUpdater.checkForUpdates();
   evt.returnValue = info;
+
+  (async () => {
+    if (!store.get("app_start")) {
+      let tokenWin = new BrowserWindow({
+        show: false,
+      });
+      tokenWin.loadURL("https://twitch.tv/");
+      tokenWin.webContents.setAudioMuted(true);
+      setTimeout(() => {
+        tokenWin.close();
+        tokenWin = null;
+      }, 3000);
+      store.set("app_start", true);
+    }
+  })();
 });
 
 // ipcMain.on("getChannelInfoDetail", async (evt, name) => {
