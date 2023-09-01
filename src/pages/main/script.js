@@ -210,11 +210,11 @@ ipcRenderer.once("update_downloaded", () => {
   docQuery(".header_update").style.display = "flex";
   if (params.platform === "darwin")
     docQuery(".header_update").addEventListener("click", () => {
-      ipcRenderer.send("restart_app");
+      ipcRenderer.send("mac_update");
     });
   else
     docQuery(".header_update").addEventListener("click", () => {
-      ipcRenderer.send("mac_update");
+      ipcRenderer.send("restart_app");
     });
 });
 
