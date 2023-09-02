@@ -14,17 +14,9 @@ ipcRenderer.on("login", () => {
         !auto_start[e].status
       ) {
         ipcRenderer.send("getStream", e);
-      } else if (
-        auto_start[e].enabled &&
-        auto_start[e].closed &&
-        !auto_start[e].status
-      ) {
+      } else if (auto_start[e].closed && !auto_start[e].status) {
         ipcRenderer.send("isStreamOff", e);
-      } else if (
-        auto_start[e].enabled &&
-        !auto_start[e].closed &&
-        auto_start[e].status
-      ) {
+      } else if (!auto_start[e].closed && auto_start[e].status) {
         ipcRenderer.send("isStreamOffWhileOn", e);
       }
     });
