@@ -385,7 +385,12 @@ ipcMain.on("movePIP", (evt, arg) => {
     x: currentPostion[0] + arg.x,
     y: currentPostion[1] + arg.y,
   };
-  streamWin[arg.name].pip.setPosition(newPosition.x, newPosition.y);
+  streamWin[arg.name].pip.setBounds({
+    x: newPosition.x,
+    y: newPosition.y,
+    width: store.get("pip_options")[arg.name].size.width,
+    height: store.get("pip_options")[arg.name].size.height,
+  });
   store.set(`pip_options.${arg.name}.location`, newPosition);
 });
 

@@ -89,14 +89,15 @@ window.onresize = () => {
     y: window.screenTop,
   };
 
-  ipcRenderer.send("resizePIP", {
-    name: params.name,
-    size: {
-      width: window.innerWidth,
-      height: window.innerHeight,
-    },
-    location,
-  });
+  if (!store.get(`pip_options.${params.name}.ismove`))
+    ipcRenderer.send("resizePIP", {
+      name: params.name,
+      size: {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      },
+      location,
+    });
 };
 
 let soundTemp = store.get(`pip_options.${params.name}.volume`);
