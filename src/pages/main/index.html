@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>이세계 PIP</title>
+  <title>StellaLux</title>
   <link rel="shortcut icon" href="../../assets/favicon.ico" type="image/x-icon">
   <link rel="icon" href="../../assets/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" type="text/css" href="style.css">
@@ -16,7 +16,7 @@
 <body>
   <nav>
     <div class="nav_window">
-      <p>ISEGYE PiP</p>
+      <p>StellaLux</p>
       <div class="nav_window_button_container">
         <div class="nav_window_button minimize">
           <img src="../../assets/minimize.svg" />
@@ -92,9 +92,36 @@
                 </label>
               </div>
             </div>
+            <div class="detail_info_auto">
+              <p>스페이스 자동 실행</p>
+              <div class="detail_info_auto_toggle">
+                <input type="checkbox" id="detail_info_space_toggle_checkbox" />
+                <label for="detail_info_space_toggle_checkbox">
+                  <div class="detail_info_auto_toggle_button"></div>
+                </label>
+              </div>
+            </div>
           </div>
         </div>
         <div class="social"></div>
+      </div>
+    </div>
+    <div class="setting_background">
+      <div class="setting">
+        <div class="setting_item">
+          <p>ct0</p>
+          <input id="twitter_csrf_token" type="text" />
+        </div>
+        <div class="setting_item">
+          <p>auth_token</p>
+          <input id="twitter_auth_token" type="text" />
+        </div>
+        <div class="setting_item">
+          <button id="setting_guide">위에 2개 뭘 넣어야 할 지 모르겠다면 클릭</button>
+        </div>
+        <div class="setting_item">
+          <button id="setting_reset">pip 초기화</button>
+        </div>
       </div>
     </div>
   </div>

@@ -12,6 +12,10 @@ body{
   border-color: #79EC84 !important;
   color: #79EC84 !important;
 }
+.is_space {
+  border-color: #4891FF !important;
+  color: #4891FF !important;
+}
 
 nav {
   display: flex;
@@ -110,7 +114,7 @@ header .header_update {
   display: none;
 }
 header .header_setting {
-  display: none;
+  display: block;
 }
 header .header_profile {
   padding: 4px;
@@ -282,7 +286,7 @@ header .header_profile img {
   font-weight: 300;
 }
 
-.detail_background {
+.detail_background, .setting_background {
   display: none;
   position: fixed;
   top: 0;
@@ -292,7 +296,7 @@ header .header_profile img {
   background-color: rgba(0, 0, 0, 0.40);
   z-index: 100;
 }
-.detail {
+.detail, .setting {
   width: 380px;
   margin: 112px auto;
   border-radius: 8px;
@@ -301,6 +305,7 @@ header .header_profile img {
   background: #232426;
   box-shadow: 0px 16px 24px 0px rgba(0, 0, 0, 0.40);
 }
+
 .detail .detail_thumnail {
   width: 100%;
   align-self: stretch;
@@ -374,6 +379,15 @@ header .header_profile img {
 .detail .detail_info .is_stream p {
   color: #79ec84;
 }
+.detail .detail_info .is_space p {
+  color: #4891ff;
+}
+.detail .detail_info .is_stream img {
+  filter: brightness(0) saturate(100%) invert(83%) sepia(58%) saturate(427%) hue-rotate(61deg) brightness(98%) contrast(89%);
+}
+.detail .detail_info .is_space img {
+  filter: brightness(0) saturate(100%) invert(63%) sepia(52%) saturate(5216%) hue-rotate(196deg) brightness(100%) contrast(102%);
+}
 .detail .detail_info .is_not_stream img {
   display: none;
 }
@@ -414,12 +428,36 @@ header .header_profile img {
   background-color: #81858F;
   transition: all 0.2s ease-in;
 }
-#detail_info_auto_toggle_checkbox:checked ~ label {
+#detail_info_auto_toggle_checkbox:checked ~ label,
+#detail_info_space_toggle_checkbox:checked ~ label {
   background-color: #3E5C41;
 }
-#detail_info_auto_toggle_checkbox:checked ~ label .detail_info_auto_toggle_button {
+#detail_info_auto_toggle_checkbox:checked ~ label .detail_info_auto_toggle_button,
+#detail_info_space_toggle_checkbox:checked ~ label .detail_info_auto_toggle_button {
   left: 20px;
   background-color: #79EC84;
+}
+
+.setting_item {
+  padding: 8px;
+  display: flex;
+  gap: 12px;
+  color: #e6ebf5;
+  font-size: 16px;
+}
+.setting_item input {
+  background-color: #81858F;
+  border-radius: 8px;
+  padding-left: 4px;
+  opacity: 0.5;
+  color: #e6ebf5;
+}
+.setting_item button {
+  background-color: #686868;
+  border-radius: 8px;
+  padding: 4px 8px;
+  color: #e6ebf5;
+  cursor: pointer;
 }
 
 .social {

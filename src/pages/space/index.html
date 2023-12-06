@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewpo4rt" content="width=device-width, initial-scale=1.0">
+    <title>PIP</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <link rel="stylesheet" type="text/css" href="../global.css">
+    <script src="script.js" defer></script>
+</head>
+
+<body>
+  <div class="fixed">
+    <img src="../../assets/pin_fixed.svg" />
+  </div>
+  <div id="panel" class="panel">
+    <div class="draggable" id="draggable"></div>
+    <div class="header">
+      <div class="real_time">
+        <span></span>
+        <p>실시간</p>
+      </div>
+      <div class="header_button_container">
+        <div class="header_button not_fixed">
+          <img src="../../assets/pin.svg" />
+        </div>
+        <div class="header_button close_pip">
+          <img onclick="window_close()" src="../../assets/close_pip.svg" id="close" />
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="control_item control_opacity">
+        <input type="range" id="opacity" min="0" max="1">
+        <label for="opacity">
+          <div class="control_background">
+            <div class="control_bar">
+              <div class="control_progress">
+                <div class="control_thumb"></div>
+              </div>
+            </div>
+          </div>
+        </label>
+        <img src="../../assets/opacity.svg" />
+      </div>
+      <div class="control_item control_volume">
+        <input type="range" id="volume" min="0" max="1">
+        <label for="volume">
+          <div class="control_background">
+            <div class="control_bar">
+              <div class="control_progress">
+                <div class="control_thumb"></div>
+              </div>
+            </div>
+          </div>
+        </label>
+        <img src="../../assets/sound.svg" />
+      </div>
+    </div>
+    <div class="control_play">
+      <img src="../../assets/pause.svg" id="play" />
+    </div>
+    <div class="controls_bottom">
+      <div class="control_time">
+        <label for="time">
+          <div class="control_background">
+            <div class="control_bar">
+              <div class="control_progress">
+                <div class="control_thumb"></div>
+              </div>
+            </div>
+          </div>
+        </label>
+        <input type="range" id="time" min="0" value="0" />
+      </div>
+      <div class="control_chat">
+        <img src="../../assets/chat.svg" />
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

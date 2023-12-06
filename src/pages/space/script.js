@@ -15,7 +15,7 @@ const params = new Proxy(new URLSearchParams(window.location.search), {
 });
 
 function window_close() {
-  ipcRenderer.send("closePIP", params.name);
+  ipcRenderer.send("closeSpace", params.name);
 }
 
 let video = document.createElement("video");
@@ -25,7 +25,7 @@ hls.attachMedia(video);
 hls.on(Hls.Events.MANIFEST_PARSED, () => {
   video.play();
 });
-video.volume = store.get(`pip_options.${params.name}.volume`);
+video.volume = store.get(`space_options.${params.name}.volume`);
 video.addEventListener("loadedmetadata", () => {
   video.currentTime = video.duration - 3;
 });
@@ -69,7 +69,7 @@ const draggable = docId("draggable");
 
 draggable.addEventListener("mousedown", (e) => {
   const moveHandler = (e) => {
-    ipcRenderer.send("movePIP", {
+    ipcRenderer.send("moveSpace", {
       name: params.name,
       x: e.movementX,
       y: e.movementY,
@@ -89,7 +89,7 @@ window.onresize = () => {
     y: window.screenTop,
   };
 
-  ipcRenderer.send("resizePIP", {
+  ipcRenderer.send("resizeSpace", {
     name: params.name,
     size: {
       width: window.innerWidth,
@@ -99,10 +99,10 @@ window.onresize = () => {
   });
 };
 
-let soundTemp = store.get(`pip_options.${params.name}.volume`);
+let soundTemp = store.get(`space_options.${params.name}.volume`);
 
 docQuery(".control_volume .control_progress").style.height =
-  store.get(`pip_options.${params.name}.volume`) * 100 + "%";
+  store.get(`space_options.${params.name}.volume`) * 100 + "%";
 
 function volumeControl(e) {
   const barTop = docQuery(
@@ -114,17 +114,17 @@ function volumeControl(e) {
   if (e.clientY - barTop > 0 && e.clientY - barTop < barBotom) {
     const volume = 1 - (e.clientY - barTop) / barBotom;
     video.volume = volume;
-    store.set(`pip_options.${params.name}.volume`, volume);
+    store.set(`space_options.${params.name}.volume`, volume);
     docQuery(".control_volume .control_progress").style.height =
       volume * 100 + "%";
     docQuery(".control_volume img").src = "../../assets/sound.svg";
   } else if (e.clientY - barTop <= 0) {
     video.volume = 1;
-    store.set(`pip_options.${params.name}.volume`, 1);
+    store.set(`space_options.${params.name}.volume`, 1);
     docQuery(".control_volume .control_progress").style.height = "100%";
   } else if (e.clientY - barTop >= barBotom) {
     video.volume = 0;
-    store.set(`pip_options.${params.name}.volume`, 0);
+    store.set(`space_options.${params.name}.volume`, 0);
     docQuery(".control_volume .control_progress").style.height = "0%";
     docQuery(".control_volume img").src = "../../assets/sound_off.svg";
   }
@@ -162,12 +162,12 @@ docQuery(".control_volume .control_thumb").addEventListener(
 docQuery(".control_volume img").addEventListener("click", () => {
   if (video.volume) {
     video.volume = 0;
-    store.set(`pip_options.${params.name}.volume`, 0);
+    store.set(`space_options.${params.name}.volume`, 0);
     docQuery(".control_volume .control_progress").style.height = "0%";
     docQuery(".control_volume img").src = "../../assets/sound_off.svg";
   } else {
     video.volume = soundTemp;
-    store.set(`pip_options.${params.name}.volume`, soundTemp);
+    store.set(`space_options.${params.name}.volume`, soundTemp);
     docQuery(".control_volume .control_progress").style.height =
       soundTemp * 100 + "%";
     docQuery(".control_volume img").src = "../../assets/sound.svg";
@@ -175,7 +175,7 @@ docQuery(".control_volume img").addEventListener("click", () => {
 });
 
 docQuery(".control_opacity .control_progress").style.height =
-  store.get(`pip_options.${params.name}.opacity`) * 100 + "%";
+  store.get(`space_options.${params.name}.opacity`) * 100 + "%";
 
 function opacityControl(e) {
   const barTop = docQuery(
@@ -186,20 +186,20 @@ function opacityControl(e) {
       .bottom - barTop;
   if (e.clientY - barTop > 0 && e.clientY - barTop < barBotom) {
     if (1 - (e.clientY - barTop) / barBotom < 0.1) {
-      store.set(`pip_options.${params.name}.opacity`, 0.1);
+      store.set(`space_options.${params.name}.opacity`, 0.1);
     } else {
       store.set(
-        `pip_options.${params.name}.opacity`,
+        `space_options.${params.name}.opacity`,
         1 - (e.clientY - barTop) / barBotom,
       );
     }
     docQuery(".control_opacity .control_progress").style.height =
       (1 - (e.clientY - barTop) / barBotom) * 100 + "%";
   } else if (e.clientY - barTop <= 0) {
-    store.set(`pip_options.${params.name}.opacity`, 1);
+    store.set(`space_options.${params.name}.opacity`, 1);
     docQuery(".control_opacity .control_progress").style.height = "100%";
   } else if (e.clientY - barTop >= barBotom) {
-    store.set(`pip_options.${params.name}.opacity`, 0.1);
+    store.set(`space_options.${params.name}.opacity`, 0.1);
     docQuery(".control_opacity .control_progress").style.height = "0%";
   }
   ipcRenderer.send("changeOpacity", params.name);
@@ -270,7 +270,7 @@ docQuery(".control_time .control_thumb").addEventListener("mousedown", (e) => {
 });
 
 docQuery(".control_chat").addEventListener("click", () => {
-  ipcRenderer.send("openChat", params.name, "stream");
+  ipcRenderer.send("openChat", params.name, "space");
 });
 
 docQuery(".control_play").addEventListener("click", () => {
@@ -285,10 +285,10 @@ docQuery(".control_play").addEventListener("click", () => {
 
 function panelMouseEnter() {
   console.log("panelMouseEnter");
-  ipcRenderer.send("fixedPIP", true, { forward: true });
+  ipcRenderer.send("fixedSpace", true, { forward: true });
 }
 function panelMouseLeave() {
-  ipcRenderer.send("fixedPIP", false);
+  ipcRenderer.send("fixedSpace", false);
 }
 
 docQuery(".not_fixed").addEventListener("click", () => {
@@ -310,6 +310,6 @@ setInterval(() => {
   if (!video.paused && durationTemp !== video.duration) {
     durationTemp = video.duration;
   } else {
-    ipcRenderer.send("isStreamOffWhileOn", params.name);
+    ipcRenderer.send("isSpaceOffWhileOn", params.name);
   }
 }, 10000);

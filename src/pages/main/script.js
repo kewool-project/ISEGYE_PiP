@@ -34,6 +34,15 @@ docQuery(".detail_background").addEventListener("click", (evt) => {
   if (evt.target.className === "detail_background") {
     docQuery(".detail_background").style.display = "none";
     docQuery(".detail_info_points span").innerText = "";
+    docQuery(".detail_info_button").removeEventListener(
+      "click",
+      detailInfoEvent,
+    );
+  }
+});
+docQuery(".setting_background").addEventListener("click", (evt) => {
+  if (evt.target.className === "setting_background") {
+    docQuery(".setting_background").style.display = "none";
   }
 });
 
@@ -57,16 +66,6 @@ store.get("pip_order").forEach((e, i) => {
   div.id = e;
   div.className = "panel_item";
   div.draggable = true;
-  let pipDelay = null;
-  div.addEventListener("click", (evt) => {
-    if (evt.target.className === "panel_item_more") return;
-    if (!pipDelay) {
-      ipcRenderer.send("openSelectPIP", div.id);
-      pipDelay = setTimeout(() => {
-        pipDelay = null;
-      }, 5000);
-    }
-  });
   tempArr.push(div);
   if (!((i + 1) % 2)) {
     const panel_column = document.createElement("div");
@@ -77,6 +76,30 @@ store.get("pip_order").forEach((e, i) => {
     container.append(panel_column);
     tempArr = [];
   }
+});
+
+docQuery(".header_setting").addEventListener("click", () => {
+  docQuery(".setting_background").style.display = "block";
+});
+const twitterCsrfTokenInput = docQuery("#twitter_csrf_token");
+if (store.get("twitter_csrf_token"))
+  twitterCsrfTokenInput.value = store.get("twitter_csrf_token");
+twitterCsrfTokenInput.addEventListener("change", (evt) => {
+  store.set("twitter_csrf_token", evt.target.value);
+});
+const twitterAuthTokenInput = docQuery("#twitter_auth_token");
+if (store.get("twitter_auth_token"))
+  twitterAuthTokenInput.value = store.get("twitter_auth_token");
+twitterAuthTokenInput.addEventListener("change", (evt) => {
+  store.set("twitter_auth_token", evt.target.value);
+});
+docQuery("#setting_guide").addEventListener("click", () => {
+  ipcRenderer.send("openGuide");
+});
+
+docQuery("#setting_reset").addEventListener("click", () => {
+  ipcRenderer.send("closeAllPIP");
+  ipcRenderer.send("resetPIPSetting");
 });
 
 const user = ipcRenderer.sendSync("getUserProfile");
@@ -98,34 +121,62 @@ if (user.profile) {
 }
 const info = ipcRenderer.sendSync("getChannelInfo");
 let diffTimeTemp = {};
+let nameTemp = "";
+let typeTemp = "";
+function detailInfoEvent() {
+  if (typeTemp === "stream")
+    ipcRenderer.send("openNewWindow", `https://www.twitch.tv/${nameTemp}`);
+  else if (typeTemp === "space")
+    ipcRenderer.send("openNewWindow", `https://x.com/i/spaces/${nameTemp}`);
+}
 function moreInfoEvent(element) {
   // const detail = ipcRenderer.sendSync("getChannelInfoDetail", e);
   const detail_background = docQuery(".detail_background");
   detail_background.style.display = "block";
-  if (element.isStream) {
+  if (element.isStream && !element.isSpace) {
     docQuery(
       ".detail_thumnail",
     ).src = `https://static-cdn.jtvnw.net/previews-ttv/live_user_${element.name}-380x213.jpg`;
     docQuery(".detail_info_button p").innerText = diffTimeTemp[element.name];
+    nameTemp = element.name;
+    typeTemp = "stream";
+    docQuery(".detail_info_button").addEventListener("click", detailInfoEvent);
+    docQuery(".detail_info_button").className = "detail_info_button is_stream";
+  } else if (!element.isStream && element.isSpace) {
+    docQuery(".detail_thumnail").src =
+      "https://static-cdn.jtvnw.net/ttv-static/404_preview-380x213.jpg";
+    docQuery(".detail_info_button p").innerText = "스페이스 진행 중!";
+    docQuery(".detail_info_button").className = "detail_info_button is_space";
+    nameTemp = element.isSpace;
+    typeTemp = "space";
+    docQuery(".detail_info_button").addEventListener("click", detailInfoEvent);
   } else {
     docQuery(".detail_thumnail").src =
       "https://static-cdn.jtvnw.net/ttv-static/404_preview-380x213.jpg";
     docQuery(".detail_info_button p").innerText =
       "최근 방송 " + diffTimeTemp[element.name];
+    nameTemp = element.name;
+    docQuery(".detail_info_button").className =
+      "detail_info_button is_not_stream";
   }
   docQuery(".detail_info_name").innerText = element.displayName;
   docQuery(".detail_info_follows span").innerText = beautyFollows(
     element.follows,
   );
-  docQuery(".detail_info_button").className = element.isStream
-    ? "detail_info_button is_stream"
-    : "detail_info_button is_not_stream";
   docId("detail_info_auto_toggle_checkbox").checked =
     store.get("auto_start")[element.name].enabled;
   docId("detail_info_auto_toggle_checkbox").addEventListener(
     "change",
     (evt) => {
       store.set(`auto_start.${element.name}.enabled`, evt.target.checked);
+    },
+  );
+  docId("detail_info_space_toggle_checkbox").checked =
+    store.get("space_auto_start")[element.name].enabled;
+  docId("detail_info_space_toggle_checkbox").addEventListener(
+    "change",
+    (evt) => {
+      store.set(`space_auto_start.${element.name}.enabled`, evt.target.checked);
     },
   );
   const channelPoint = ipcRenderer.invoke("getChannelPoint", element.name);
@@ -136,9 +187,25 @@ function moreInfoEvent(element) {
 
 info.forEach((element, i) => {
   const panel_item = docId(element.name);
+  let pipDelay = null;
+  panel_item.addEventListener("click", (evt) => {
+    if (evt.target.className === "panel_item_more") return;
+    if (!pipDelay) {
+      if (element.isStream && !element.isSpace) {
+        ipcRenderer.send("getStream", element.name);
+      } else if (!element.isStream && element.isSpace) {
+        ipcRenderer.send("getSpace", element.name);
+      }
+      pipDelay = setTimeout(() => {
+        pipDelay = null;
+      }, 5000);
+    }
+  });
   const profile = document.createElement("div");
   profile.className = "panel_item_profile";
-  if (element.isStream) profile.classList.add("is_stream");
+  if (element.isStream && !element.isSpace) profile.classList.add("is_stream");
+  else if (!element.isStream && element.isSpace)
+    profile.classList.add("is_space");
   const profile_img = document.createElement("img");
   profile_img.src = element.profile;
   profile.append(profile_img);
@@ -159,14 +226,19 @@ info.forEach((element, i) => {
   let diff = nowDate.getTime() - startDate.getTime();
   let diffTimes = Math.floor(diff / (1000 * 60));
   let diffTimeText = "";
-  if (diffTimes >= 60 && element.isStream) {
-    diffTimes = Math.floor(diffTimes / 60);
-    diffTimeText = `${diffTimes}시간 전부터 방송 중!`;
-    panel_item_stream_date.innerText = diffTimeText;
-  } else if (element.isStream) {
-    panel_item_stream_date.classList.add("is_stream");
-    diffTimeText = `${diffTimes}분 전부터 방송 중!`;
-    panel_item_stream_date.innerText = diffTimeText;
+  if (element.isStream && !element.isSpace) {
+    if (diffTimes >= 60) {
+      diffTimes = Math.floor(diffTimes / 60);
+      diffTimeText = `${diffTimes}시간 전부터 방송 중!`;
+      panel_item_stream_date.innerText = diffTimeText;
+    } else {
+      panel_item_stream_date.classList.add("is_stream");
+      diffTimeText = `${diffTimes}분 전부터 방송 중!`;
+      panel_item_stream_date.innerText = diffTimeText;
+    }
+  } else if (!element.isStream && element.isSpace) {
+    panel_item_stream_date.classList.add("is_space");
+    panel_item_stream_date.innerText = "스페이스 진행 중!";
   } else {
     diff = nowDate.getTime() - new Date(element.lastStreamDate).getTime();
     diffTimes = Math.floor(diff / (1000 * 60));
@@ -185,7 +257,10 @@ info.forEach((element, i) => {
     panel_item_stream_date.append(lastStreamDate);
   }
   diffTimeTemp[element.name] = diffTimeText;
-  if (element.isStream) panel_item_stream_date.classList.add("is_stream");
+  if (element.isStream && !element.isSpace)
+    panel_item_stream_date.classList.add("is_stream");
+  else if (!element.isStream && element.isSpace)
+    panel_item_stream_date.classList.add("is_space");
   panel_item_info.append(panel_item_stream_date);
 
   const follows = document.createElement("p");

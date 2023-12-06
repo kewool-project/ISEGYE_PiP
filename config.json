@@ -3,5 +3,15 @@
     "REDIRECT_URI": "http://localhost/",
     "CHANNEL_NAME": ["viichan6", "gosegugosegu", "cotton__123", "lilpaaaaaa", "jingburger", "vo_ine", "woowakgood", "111roentgenium"],
     "TOOLTIP_NAME": "이세계 PiP",
+    "TWITTER_ID": {
+      "viichan6": "1000725569892306945",
+      "gosegugosegu": "1681727526706765825",
+      "cotton__123": "1341013061981806592",
+      "lilpaaaaaa": "1699854272576516096",
+      "jingburger": "886087131914944513",
+      "vo_ine": "",
+      "woowakgood": "1620374642430189569",
+      "111roentgenium": "705059862170832896"
+    },
     "RELEASE_URL": "https://github.com/kewool-project/ISEGYE_PiP/releases"
 }
