@@ -310,7 +310,7 @@ app.on("ready", () => {
   createMainWindow();
   createBackground();
   trayIcon =
-    process.platform === "darwin" ? "assets/icon_mac.png" : "assets/icon2.png";
+    process.platform === "darwin" ? "assets/icon_mac.png" : "assets/icon.png";
   tray = new Tray(path.join(page_dir, trayIcon));
   const contextMenu = Menu.buildFromTemplate([
     { label: "Exit", type: "normal", role: "quit" },
