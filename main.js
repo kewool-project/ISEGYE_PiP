@@ -211,6 +211,10 @@ app.on("ready", () => {
   // store.delete("pip_options"); //test
   // store.delete("space_auto_start"); //test
   // store.delete("space_options"); //test
+  if (!store.get("4.0.1")) {
+    store.clear();
+    store.set("4.0.1", true);
+  }
   if (!store.get("pip_order")) {
     store.set("pip_order", config["CHANNEL_NAME"]);
     app.setLoginItemSettings({
