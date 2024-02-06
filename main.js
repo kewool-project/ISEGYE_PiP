@@ -1,22 +1,14 @@
 const electron = require("electron");
 const path = require("path");
-const { ElectronAuthProvider } = require("@twurple/auth-electron");
-const { ApiClient } = require("@twurple/api");
-const { app, BrowserWindow, ipcMain, Tray, Menu, screen, shell } = electron;
+const { app, BrowserWindow, ipcMain, Tray, Menu, screen, shell, session } =
+  electron;
 const { autoUpdater } = require("electron-updater");
-const twitch = require("./lib.js");
+const lib = require("./lib.js");
 const config = require("./config.json");
 const Store = require("electron-store");
 
 const page_dir = path.join(__dirname, "/src/");
-const clientId = config["CLIENT_ID"];
-const redirectUri = config["REDIRECT_URI"];
 const twitterId = config["TWITTER_ID"];
-const authProvider = new ElectronAuthProvider({
-  clientId,
-  redirectUri,
-});
-const apiClient = new ApiClient({ authProvider });
 
 const store = new Store();
 
@@ -30,15 +22,6 @@ let spaceWin = {};
 let chatWin = {};
 let trayIcon;
 let guideWin;
-
-async function redactedFunc() {
-  try {
-    const { redactedFunc } = require("./redacted.js");
-    return await redactedFunc();
-  } catch (e) {
-    return {};
-  }
-}
 
 function createMainWindow() {
   mainWin = new BrowserWindow({
@@ -57,7 +40,7 @@ function createMainWindow() {
       y: 12,
     },
   });
-  //mainWin.setMenu(null);
+  mainWin.setMenu(null);
   mainWin.loadURL(
     "file://" +
       path.join(page_dir, `pages/main/index.html?platform=${process.platform}`),
@@ -65,6 +48,8 @@ function createMainWindow() {
   mainWin.on("closed", () => {
     mainWin = null;
   });
+
+  // mainWin.webContents.openDevTools();
 }
 
 function createBackground() {
@@ -80,11 +65,11 @@ function createBackground() {
   backWin.loadFile(path.join(page_dir, "pages/background/index.html"));
 }
 
-function createPIPWin(url, name) {
-  streamWin[name] = {};
-  streamWin[name].pip = new BrowserWindow({
-    width: store.get("pip_options")[name].size.width,
-    height: store.get("pip_options")[name].size.height,
+function createPIPWin(url, userName) {
+  streamWin[userName] = {};
+  streamWin[userName].pip = new BrowserWindow({
+    width: store.get("pip_options")[userName].size.width,
+    height: store.get("pip_options")[userName].size.height,
     minWidth: 240,
     minHeight: 135,
     webPreferences: {
@@ -95,60 +80,55 @@ function createPIPWin(url, name) {
     resizable: true,
     maximizable: false,
     skipTaskbar: true,
-    x: store.get("pip_options")[name].location.x,
-    y: store.get("pip_options")[name].location.y,
-    opacity: store.get("pip_options")[name].opacity,
+    x: store.get("pip_options")[userName].location.x,
+    y: store.get("pip_options")[userName].location.y,
+    opacity: store.get("pip_options")[userName].opacity,
   });
-  streamWin[name].pip.setAspectRatio(16 / 9);
-  streamWin[name].pip.setMenu(null);
-  streamWin[name].pip.loadURL(
+  streamWin[userName].pip.setAspectRatio(16 / 9);
+  streamWin[userName].pip.setMenu(null);
+  streamWin[userName].pip.loadURL(
     "file://" +
-      path.join(page_dir, `pages/pip/index.html?url=${url}&name=${name}`),
+      path.join(page_dir, `pages/pip/index.html?url=${url}&name=${userName}`),
   );
-  streamWin[name].pip.setAlwaysOnTop(true, "screen-saver");
-  streamWin[name].pip.setVisibleOnAllWorkspaces(true);
+  streamWin[userName].pip.setAlwaysOnTop(true, "screen-saver");
+  streamWin[userName].pip.setVisibleOnAllWorkspaces(true);
 
-  createPointsWin(name);
+  createLiveWin(userName);
 }
 
-function createPointsWin(name) {
-  streamWin[name].points = new BrowserWindow({
+function createLiveWin(userName) {
+  streamWin[userName].points = new BrowserWindow({
     show: false,
     width: 1280,
     height: 720,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+      webSecurity: false,
+      partition: userName,
+    },
   });
-  streamWin[name].points.loadURL("https://twitch.tv/" + name);
-  streamWin[name].points.webContents.setAudioMuted(true);
-  streamWin[name].points.webContents.executeJavaScript(
-    `
-    setTimeout(() => {
-      document.querySelector("#channel-player > div > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div > button").click();
-      document.querySelector("body > div:nth-child(19) > div > div > div > div > div:nth-child(1) > div > div > div:nth-child(2) > div:nth-child(3) > button").click();
-      document.querySelector("body > div:nth-child(20) > div > div > div > div > div:nth-child(1) > div > div > div:nth-child(2) > div:nth-child(5) > div > div > div > div > label").click();
-    }, 5000);
-    setInterval(()=>{
-        const box = document.querySelector("#live-page-chat > div > div > div:nth-child(2) > div > div > section > div > div:nth-child(6) > div:nth-child(2) > div:nth-child(2) > div:nth-child(1) > div > div > div > div:nth-child(2) > div > div > div > button");
-        if(box) {
-            box.click();
-        }
-        }, 30000);`,
-  );
+  streamWin[userName].points.loadURL("https://play.afreecatv.com/" + userName, {
+    userAgent:
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+  });
+  streamWin[userName].points.webContents.setAudioMuted(true);
 }
 
-function createChatWin(name, type) {
-  chatWin[name] = new BrowserWindow({
+function createChatWin(userName, type) {
+  chatWin[userName] = new BrowserWindow({
     x:
       type === "stream"
-        ? store.get("pip_options")[name].location.x +
-          store.get("pip_options")[name].size.width
-        : store.get("space_options")[name].location.x +
-          store.get("space_options")[name].size.width,
+        ? store.get("pip_options")[userName].location.x +
+          store.get("pip_options")[userName].size.width
+        : store.get("space_options")[userName].location.x +
+          store.get("space_options")[userName].size.width,
     y:
       type === "stream"
-        ? store.get("pip_options")[name].location.y
-        : store.get("space_options")[name].location.y,
+        ? store.get("pip_options")[userName].location.y
+        : store.get("space_options")[userName].location.y,
     width: 350,
-    height: store.get("pip_options")[name].size.height,
+    height: store.get("pip_options")[userName].size.height,
     webPreferences: {
       webviewTag: true,
     },
@@ -157,19 +137,20 @@ function createChatWin(name, type) {
     maximizable: false,
     skipTaskbar: true,
   });
-  chatWin[name].setMenu(null);
-  chatWin[name].loadURL(
-    "file://" + path.join(page_dir, `pages/chat/index.html?name=${name}`),
+  chatWin[userName].setMenu(null);
+  chatWin[userName].loadURL(
+    "file://" +
+      path.join(page_dir, `pages/chat/index.html?userName=${userName}`),
   );
-  chatWin[name].setAlwaysOnTop(true, "screen-saver");
-  chatWin[name].setVisibleOnAllWorkspaces(true);
+  chatWin[userName].setAlwaysOnTop(true, "screen-saver");
+  chatWin[userName].setVisibleOnAllWorkspaces(true);
 }
 
-function createSpaceWin(url, name) {
-  spaceWin[name] = {};
-  spaceWin[name].pip = new BrowserWindow({
-    width: store.get("space_options")[name].size.width,
-    height: store.get("space_options")[name].size.height,
+function createSpaceWin(url, userName) {
+  spaceWin[userName] = {};
+  spaceWin[userName].pip = new BrowserWindow({
+    width: store.get("space_options")[userName].size.width,
+    height: store.get("space_options")[userName].size.height,
     minWidth: 240,
     minHeight: 135,
     webPreferences: {
@@ -180,18 +161,21 @@ function createSpaceWin(url, name) {
     resizable: true,
     maximizable: false,
     skipTaskbar: true,
-    x: store.get("space_options")[name].location.x,
-    y: store.get("space_options")[name].location.y,
-    opacity: store.get("space_options")[name].opacity,
+    x: store.get("space_options")[userName].location.x,
+    y: store.get("space_options")[userName].location.y,
+    opacity: store.get("space_options")[userName].opacity,
   });
-  spaceWin[name].pip.setAspectRatio(16 / 9);
-  spaceWin[name].pip.setMenu(null);
-  spaceWin[name].pip.loadURL(
+  spaceWin[userName].pip.setAspectRatio(16 / 9);
+  spaceWin[userName].pip.setMenu(null);
+  spaceWin[userName].pip.loadURL(
     "file://" +
-      path.join(page_dir, `pages/space/index.html?url=${url}&name=${name}`),
+      path.join(
+        page_dir,
+        `pages/space/index.html?url=${url}&userName=${userName}`,
+      ),
   );
-  spaceWin[name].pip.setAlwaysOnTop(true, "screen-saver");
-  spaceWin[name].pip.setVisibleOnAllWorkspaces(true);
+  spaceWin[userName].pip.setAlwaysOnTop(true, "screen-saver");
+  spaceWin[userName].pip.setVisibleOnAllWorkspaces(true);
 }
 
 function createGuideWin() {
@@ -222,11 +206,11 @@ if (!lock) {
 
 app.on("ready", () => {
   store.set("app_start", false);
-  // store.delete("pip_order"); //test
-  // store.delete("auto_start"); //test
-  // store.delete("pip_options"); //test
-  // store.delete("space_auto_start"); //test
-  // store.delete("space_options"); //test
+  store.delete("pip_order"); //test
+  store.delete("auto_start"); //test
+  store.delete("pip_options"); //test
+  store.delete("space_auto_start"); //test
+  store.delete("space_options"); //test
   if (!store.get("pip_order")) {
     store.set("pip_order", config["CHANNEL_NAME"]);
     app.setLoginItemSettings({
@@ -307,6 +291,19 @@ app.on("ready", () => {
     });
     store.set("space_options", space_options);
   }
+  const filter = {
+    urls: ["https://*.afreecatv.com/*"],
+  };
+  session.defaultSession.webRequest.onBeforeSendHeaders(
+    filter,
+    (details, callback) => {
+      details.requestHeaders["User-Agent"] =
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36";
+      details.requestHeaders["Referer"] = "https://play.afreecatv.com/";
+      callback({ cancel: false, requestHeaders: details.requestHeaders });
+    },
+  );
+
   createMainWindow();
   createBackground();
   trayIcon =
@@ -332,79 +329,38 @@ app.on("activate", () => {
   if (mainWin === null) createMainWindow();
 });
 
-ipcMain.on("logout", async () => {
-  let logoutWin = new BrowserWindow({
-    show: false,
-    webPreferences: {
-      contextIsolation: false,
-      nodeIntegration: true,
-    },
-    width: 1080,
-    height: 720,
-  });
-  logoutWin.webContents.setAudioMuted(true);
-  let tempWin = new BrowserWindow({
-    show: false,
-    webPreferences: {
-      contextIsolation: false,
-      nodeIntegration: true,
-    },
-  });
-  tempWin.loadURL("https://twitch.tv/");
-  tempWin.webContents.setAudioMuted(true);
-  tempWin.webContents.on("did-finish-load", () => {
-    logoutWin.loadURL("https://twitch.tv/");
-    logoutWin.webContents.on("did-finish-load", () => {
-      logoutWin.webContents.executeJavaScript(
-        `
-        setTimeout(() => {
-          document.querySelector("#root > div > div:nth-child(2) > nav > div > div:nth-child(3) > div:nth-child(7) > div > div > div > div > button").click();
-          document.querySelector("body > div:nth-child(18) > div > div > div > div > div > div > div > div > div > div > div > div:nth-child(3) > div > div > div:nth-child(5) > button").click();
-        }, 2000);
-        `,
-      );
-      setTimeout(() => {
-        app.exit();
-      }, 3000);
-    });
-  });
-});
-
 ipcMain.on("getUserProfile", async (evt) => {
-  const user = await apiClient.users.getUserById(
-    (await apiClient.getTokenInfo()).userId,
-  );
   evt.returnValue = {
-    name: user?.name,
-    profile: user?.profilePictureUrl,
+    name: "guest",
+    profile: undefined,
   };
 });
 
 ipcMain.on("getChannelInfo", async (evt) => {
-  const res = await apiClient.users.getUsersByNames(store.get("pip_order"));
   const info = await Promise.all(
-    res.map(async (e) => {
-      const stream = await apiClient.streams.getStreamByUserId(e.id);
-      const follows = await apiClient.channels.getChannelFollowerCount(e);
-      const lastStreamDate = await twitch.getLastStreamDate(e.name);
+    store.get("pip_order").map(async (e) => {
+      const live = await lib.getLiveByName(e);
+      const user = await lib.getUserByName(e);
+      const lastStreamDate = await lib.getLastStreamDate(e);
       let isSpace = null;
       if (store.get("twitter_csrf_token") && store.get("twitter_auth_token")) {
-        isSpace = await twitch.checkSpace(
+        isSpace = await lib.checkSpace(
           store.get("twitter_csrf_token"),
           store.get("twitter_auth_token"),
-          twitterId[e.name],
+          twitterId[e],
         );
       }
       return {
-        name: e.name,
-        displayName: e.displayName,
-        profile: e.profilePictureUrl,
-        id: e.id,
-        follows: follows,
-        startDate: stream?.startDate ?? false,
+        name: e,
+        displayName: user.DATA.user_nick,
+        profile: `https://stimg.afreecatv.com/LOGO/${e.slice(
+          0,
+          2,
+        )}/${e}/${e}.jpg`,
+        follows: user.DATA.fan_cnt,
+        startDate: live.CHANNEL.RESULT ? user.DATA.broad_start : false,
         lastStreamDate: lastStreamDate,
-        isStream: stream ? true : false,
-        game: stream?.gameName,
+        isStream: live.CHANNEL.RESULT,
         isSpace: isSpace,
       };
     }),
@@ -412,70 +368,25 @@ ipcMain.on("getChannelInfo", async (evt) => {
   backWin.webContents.send("login");
   autoUpdater.checkForUpdates();
   evt.returnValue = info;
-
-  (async () => {
-    if (!store.get("app_start")) {
-      let tokenWin = new BrowserWindow({
-        show: false,
-      });
-      tokenWin.loadURL("https://twitch.tv/");
-      tokenWin.webContents.setAudioMuted(true);
-      setTimeout(() => {
-        tokenWin.close();
-        tokenWin = null;
-      }, 3000);
-      store.set("app_start", true);
-    }
-  })();
 });
 
-// ipcMain.on("getChannelInfoDetail", async (evt, name) => {
-//   const user = await apiClient.users.getUserByName(name);
-//   const stream = await apiClient.streams.getStreamByUserId(user.id);
-//   const follows = await apiClient.channels.getChannelFollowerCount(user);
-//   evt.returnValue = {
-//     name: user.name,
-//     follows: follows,
-//     startDate: stream?.startDate ?? false,
-//   };
-// });
-
-ipcMain.handle("getChannelPoint", async (evt, name) => {
-  const redacted = (await redactedFunc()).a;
-  const res = await twitch.getChannelPoint(name, redacted);
-  return res;
+ipcMain.on("getBno", async (evt, userName) => {
+  const live = await lib.getLiveByName(userName);
+  evt.returnValue = live.CHANNEL.BNO;
 });
 
-ipcMain.on("getStream", async (evt, name) => {
-  if (streamWin[name]?.pip || store.get("auto_start")[name].status) {
-    streamWin[name].pip.focus();
+ipcMain.on("getStream", async (evt, userName) => {
+  if (streamWin[userName]?.pip || store.get("auto_start")[userName].status) {
+    streamWin[userName].pip.focus();
     return;
   }
-  const isStream = (await apiClient.streams.getStreamByUserName(name))
-    ? true
-    : false;
+  const live = await lib.getLiveByName(userName);
+  const isStream = live.CHANNEL.RESULT;
   if (isStream) {
-    store.set(`auto_start.${name}.status`, true);
-    const redacted = (await redactedFunc()).a;
-    await twitch.getStream(name, false, redacted).then((res) => {
-      createPIPWin(res[0].url, name);
-    });
-  }
-});
-
-ipcMain.on("openSelectPIP", async (evt, name) => {
-  if (streamWin[name]?.pip) {
-    streamWin[name].pip.focus();
-    return;
-  }
-  const isStream = (await apiClient.streams.getStreamByUserName(name))
-    ? true
-    : false;
-  if (isStream) {
-    store.set(`auto_start.${name}.status`, true);
-    const redacted = (await redactedFunc()).a;
-    await twitch.getStream(name, false, redacted).then((res) => {
-      createPIPWin(res[0].url, name);
+    store.set(`auto_start.${userName}.status`, true);
+    lib.getStream(userName, live.CHANNEL.BNO).then((res) => {
+      const hls = `${res.viewUrl}/${res.playlist[0].url}`;
+      createPIPWin(hls, userName);
     });
   }
 });
@@ -559,22 +470,20 @@ ipcMain.on("isStreamOff", async (evt, name) => {
   if (!isStream) store.set(`auto_start.${name}.closed`, false);
 });
 
-ipcMain.on("isStreamOffWhileOn", async (evt, name) => {
-  const isStream = (await apiClient.streams.getStreamByUserName(name))
-    ? true
-    : false;
+ipcMain.on("isStreamOffWhileOn", async (evt, userName) => {
+  const isStream = (await lib.getUserByName(userName)).content.openLive;
   if (!isStream) {
-    streamWin[name].pip.close();
-    streamWin[name].pip = null;
-    streamWin[name].points.close();
-    streamWin[name].points = null;
-    if (chatWin[name]) {
-      chatWin[name].close();
-      chatWin[name] = null;
+    streamWin[userName].pip.close();
+    streamWin[userName].pip = null;
+    streamWin[userName].points.close();
+    streamWin[userName].points = null;
+    if (chatWin[userName]) {
+      chatWin[userName].close();
+      chatWin[userName] = null;
     }
-    streamWin[name] = null;
-    store.set(`auto_start.${name}.status`, false);
-    store.set(`auto_start.${name}.closed`, false);
+    streamWin[userName] = null;
+    store.set(`auto_start.${userName}.status`, false);
+    store.set(`auto_start.${userName}.closed`, false);
   }
 });
 
@@ -609,13 +518,13 @@ ipcMain.on("getSpace", async (evt, name) => {
     spaceWin[name].pip.focus();
     return;
   }
-  const spaceId = await twitch.checkSpace(
+  const spaceId = await lib.checkSpace(
     store.get("twitter_csrf_token"),
     store.get("twitter_auth_token"),
     twitterId[name],
   );
   if (spaceId) {
-    const spaceM3U8 = await twitch.getSpaceM3U8(
+    const spaceM3U8 = await lib.getSpaceM3U8(
       spaceId,
       store.get("twitter_csrf_token"),
       store.get("twitter_auth_token"),
@@ -671,7 +580,7 @@ ipcMain.on("closeAllSpace", () => {
 });
 
 ipcMain.on("isSpaceOff", async (evt, name) => {
-  const isSpace = await twitch.checkSpace(
+  const isSpace = await lib.checkSpace(
     store.get("twitter_csrf_token"),
     store.get("twitter_auth_token"),
     twitterId[name],
@@ -680,7 +589,7 @@ ipcMain.on("isSpaceOff", async (evt, name) => {
 });
 
 ipcMain.on("isSpaceOffWhileOn", async (evt, name) => {
-  const isSpace = await twitch.checkSpace(
+  const isSpace = await lib.checkSpace(
     store.get("twitter_csrf_token"),
     store.get("twitter_auth_token"),
     twitterId[name],

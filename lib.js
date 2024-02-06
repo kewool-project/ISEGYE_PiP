@@ -3,33 +3,24 @@ const https = require("https");
 
 const clientId = "kimne78kx3ncx6brgo4mv6wki5h1ko";
 
-function getAccessToken(id, isVod, redacted = {}) {
-  const data = JSON.stringify({
-    operationName: "PlaybackAccessToken",
-    extensions: {
-      persistedQuery: {
-        version: 1,
-        sha256Hash:
-          "0828119ded1c13477966434e15800ff57ddacf13ba1911c129dc2200705b0712",
-      },
-    },
-    variables: {
-      isLive: !isVod,
-      login: isVod ? "" : id,
-      isVod: isVod,
-      vodID: isVod ? id : "",
-      playerType: "site",
-    },
-  });
+function getLiveByName(name) {
+  const data = {
+    bid: name,
+    type: "live",
+    player_type: "html5",
+    stream_type: "common",
+    quality: "master",
+    mode: "landing",
+    from_api: 0,
+  };
 
   const options = {
-    hostname: "gql.twitch.tv",
+    hostname: "live.afreecatv.com",
     port: 443,
-    path: "/gql",
+    path: `/afreeca/player_live_api.php?bjid=${name}`,
     method: "POST",
     headers: {
-      "Client-id": clientId,
-      ...redacted,
+      "Content-Type": "application/x-www-form-urlencoded",
     },
   };
 
@@ -43,42 +34,133 @@ function getAccessToken(id, isVod, redacted = {}) {
         resData.body = resData.body.join("");
 
         if (resData.statusCode !== 200) {
-          let win = new BrowserWindow();
-          win.loadURL("https://twitch.tv/login");
-          reject(new Error(`mabye not authorized`));
+          reject(new Error(`${resData.statusCode}`));
         } else {
-          if (isVod) {
-            resolve(JSON.parse(resData.body).data.videoPlaybackAccessToken);
-          } else {
-            resolve(JSON.parse(resData.body).data.streamPlaybackAccessToken);
-          }
+          resolve(JSON.parse(resData.body));
         }
       });
     });
 
     req.on("error", (error) => reject(error));
-    req.write(data);
+    req.write(new URLSearchParams(data).toString());
     req.end();
   });
 }
 
-function getPlaylist(id, accessToken, vod) {
+function getUserByName(name) {
+  const options = {
+    hostname: "st.afreecatv.com",
+    port: 443,
+    path: `/api/get_station_status.php?szBjId=${name}`,
+    method: "GET",
+  };
+
   return new Promise((resolve, reject) => {
-    const req = https
-      .get(
-        `https://usher.ttvnw.net/${
-          vod ? "vod" : "api/channel/hls"
-        }/${id}.m3u8?client_id=${clientId}&token=${accessToken.value}&sig=${
-          accessToken.signature
-        }&allow_source=true&allow_audio_only=true`,
-        (response) => {
+    const req = https.request(options, (response) => {
+      let resData = {};
+      resData.statusCode = response.statusCode;
+      resData.body = [];
+      response.on("data", (chunk) => resData.body.push(chunk));
+      response.on("end", () => {
+        resData.body = resData.body.join("");
+
+        if (resData.statusCode !== 200) {
+          reject(new Error(`${resData.statusCode}`));
+        } else {
+          resolve(JSON.parse(resData.body));
+        }
+      });
+    });
+
+    req.on("error", (error) => reject(error));
+    req.end();
+  });
+}
+
+async function getPlaylist(name, bno) {
+  const aidData = {
+    bid: name,
+    type: "aid",
+    player_type: "html5",
+    stream_type: "common",
+    quality: "master",
+    mode: "landing",
+    from_api: 0,
+  };
+
+  const aidOptions = {
+    hostname: "live.afreecatv.com",
+    port: 443,
+    path: `/afreeca/player_live_api.php?bjid=${name}`,
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  };
+
+  const aid = await new Promise((resolve, reject) => {
+    const req = https.request(aidOptions, (response) => {
+      let resData = {};
+      resData.statusCode = response.statusCode;
+      resData.body = [];
+      response.on("data", (chunk) => resData.body.push(chunk));
+      response.on("end", () => {
+        resData.body = resData.body.join("");
+
+        if (resData.statusCode !== 200) {
+          reject(new Error(`${resData.statusCode}`));
+        } else {
+          resolve(JSON.parse(resData.body));
+        }
+      });
+    });
+
+    req.on("error", (error) => reject(error));
+    req.write(new URLSearchParams(aidData).toString());
+    req.end();
+  });
+
+  const viewUrlOptions = {
+    hostname: "livestream-manager.afreecatv.com",
+    port: 443,
+    path: `/broad_stream_assign.html?return_type=gs_cdn_pc_web&use_cors=true&cors_origin_url=play.afreecatv.com&broad_key=${bno}-common-master-hls&time=3072.3733594524338`,
+  };
+
+  const viewUrl = await new Promise((resolve, reject) => {
+    const req = https.request(viewUrlOptions, (response) => {
+      let resData = {};
+      resData.statusCode = response.statusCode;
+      resData.body = [];
+      response.on("data", (chunk) => resData.body.push(chunk));
+      response.on("end", () => {
+        resData.body = resData.body.join("");
+        resolve(JSON.parse(resData.body).view_url);
+      });
+    });
+
+    req.on("error", (error) => reject(error));
+    req.end();
+  });
+
+  const options = {
+    hostname: viewUrl.split("/")[2],
+    port: 443,
+    path: `/${viewUrl.split("/").slice(3).join("/")}?aid=${aid.CHANNEL.AID}`,
+    headers: {
+      Referer: "https://play.afreecatv.com/",
+    },
+  };
+
+  return {
+    hlsList: await new Promise((resolve, reject) => {
+      const req = https
+        .request(options, (response) => {
           let data = {};
           data.statusCode = response.statusCode;
           data.body = [];
           response.on("data", (chunk) => data.body.push(chunk));
           response.on("end", () => {
             data.body = data.body.join("");
-
             switch (data.statusCode) {
               case 200:
                 resolve(resolve(data.body));
@@ -92,73 +174,59 @@ function getPlaylist(id, accessToken, vod) {
                 break;
               default:
                 reject(
-                  new Error(`Twitch returned status code ${data.statusCode}`),
+                  new Error(
+                    `Afreecatv returned status code ${data.statusCode}`,
+                  ),
                 );
                 break;
             }
           });
-        },
-      )
-      .on("error", (error) => reject(error));
+        })
+        .on("error", (error) => reject(error));
 
-    req.end();
-  });
+      req.end();
+    }),
+    viewUrl,
+  };
 }
 
 function parsePlaylist(playlist) {
   const parsedPlaylist = [];
   const lines = playlist.split("\n");
-  for (let i = 4; i < lines.length; i += 3) {
+  lines.shift();
+  lines.pop();
+  for (let i = 0; i < lines.length; i += 2) {
     parsedPlaylist.push({
-      // eslint-disable-next-line quotes
-      quality: lines[i - 2].split('NAME="')[1].split('"')[0],
-      resolution:
-        lines[i - 1].indexOf("RESOLUTION") !== -1
-          ? lines[i - 1].split("RESOLUTION=")[1].split(",")[0]
-          : null,
-      url: lines[i],
+      quality: lines[i].split("NAME=")[1].split(",")[0],
+      resolution: lines[i].split("RESOLUTION=")[1].split("\r")[0],
+      url: lines[i + 1],
     });
   }
   return parsedPlaylist;
 }
 
-function getStream(channel, raw, redacted = {}) {
+function getStream(name, bno) {
   return new Promise((resolve, reject) => {
-    getAccessToken(channel, false, redacted)
-      .then((accessToken) => getPlaylist(channel, accessToken, false))
-      .then((playlist) => resolve(raw ? playlist : parsePlaylist(playlist)))
+    getPlaylist(name, bno)
+      .then((playlist) =>
+        resolve({
+          playlist: parsePlaylist(playlist.hlsList),
+          viewUrl: playlist.viewUrl,
+        }),
+      )
       .catch((error) => reject(error));
   });
 }
 
-function getLastStreamDate(channel) {
-  const data = [
-    {
-      operationName: "StreamSchedule",
-      variables: {
-        login: channel,
-        startingWeekday: "MONDAY",
-        utcOffsetMinutes: 540,
-        startAt: "2023-08-20T15:00:00.000Z",
-        endAt: "2023-08-27T14:59:59.059Z",
-      },
-      extensions: {
-        persistedQuery: {
-          version: 1,
-          sha256Hash:
-            "d495cb17a67b6f7a8842e10297e57dcd553ea17fe691db435e39a618fe4699cf",
-        },
-      },
-    },
-  ];
-
+function getLastStreamDate(userName) {
   const options = {
-    hostname: "gql.twitch.tv",
+    hostname: "bjapi.afreecatv.com",
     port: 443,
-    path: "/gql",
-    method: "POST",
+    path: `/api/${userName}/station`,
+    method: "GET",
     headers: {
-      "Client-id": clientId,
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
     },
   };
 
@@ -172,71 +240,14 @@ function getLastStreamDate(channel) {
         resData.body = resData.body.join("");
 
         if (resData.statusCode !== 200) {
-          reject(new Error(`${JSON.parse(data.body).message}`));
+          reject(new Error(`${resData.statusCode}`));
         } else {
-          resolve(
-            JSON.parse(resData.body)[0].data.user.lastBroadcast.startedAt,
-          );
+          resolve(JSON.parse(resData.body).station.broad_start);
         }
       });
     });
 
     req.on("error", (error) => reject(error));
-    req.write(JSON.stringify(data));
-    req.end();
-  });
-}
-
-function getChannelPoint(channel, redacted = {}) {
-  const data = [
-    {
-      operationName: "ChannelPointsContext",
-      variables: {
-        channelLogin: channel,
-      },
-      extensions: {
-        persistedQuery: {
-          version: 1,
-          sha256Hash:
-            "1530a003a7d374b0380b79db0be0534f30ff46e61cffa2bc0e2468a909fbc024",
-        },
-      },
-    },
-  ];
-
-  const options = {
-    hostname: "gql.twitch.tv",
-    port: 443,
-    path: "/gql",
-    method: "POST",
-    headers: {
-      "Client-id": clientId,
-      ...redacted,
-    },
-  };
-
-  return new Promise((resolve, reject) => {
-    const req = https.request(options, (response) => {
-      let resData = {};
-      resData.statusCode = response.statusCode;
-      resData.body = [];
-      response.on("data", (chunk) => resData.body.push(chunk));
-      response.on("end", () => {
-        resData.body = resData.body.join("");
-
-        if (resData.statusCode !== 200) {
-          reject(new Error(`${JSON.parse(data.body).message}`));
-        } else {
-          resolve(
-            JSON.parse(resData.body)[0].data.community.channel.self
-              .communityPoints.balance,
-          );
-        }
-      });
-    });
-
-    req.on("error", (error) => reject(error));
-    req.write(JSON.stringify(data));
     req.end();
   });
 }
@@ -392,9 +403,10 @@ async function getSpaceM3U8(id, ct0, auth_token) {
 }
 
 module.exports = {
+  getLiveByName: getLiveByName,
+  getUserByName: getUserByName,
   getStream: getStream,
   getLastStreamDate: getLastStreamDate,
-  getChannelPoint: getChannelPoint,
   checkSpace: checkSpace,
   getSpaceM3U8: getSpaceM3U8,
 };

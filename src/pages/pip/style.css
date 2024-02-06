@@ -246,6 +246,11 @@ body {
   height: 20px;
 }
 
+.disabled {
+  filter: invert(23%) sepia(0%) saturate(1465%) hue-rotate(203deg) brightness(105%) contrast(72%) !important;
+  cursor: default !important;
+}
+
 video {
   position: fixed;
   top: 0;

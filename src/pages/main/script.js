@@ -125,7 +125,7 @@ let nameTemp = "";
 let typeTemp = "";
 function detailInfoEvent() {
   if (typeTemp === "stream")
-    ipcRenderer.send("openNewWindow", `https://www.twitch.tv/${nameTemp}`);
+    ipcRenderer.send("openNewWindow", `https://play.afreecatv.com/${nameTemp}`);
   else if (typeTemp === "space")
     ipcRenderer.send("openNewWindow", `https://x.com/i/spaces/${nameTemp}`);
 }
@@ -134,9 +134,8 @@ function moreInfoEvent(element) {
   const detail_background = docQuery(".detail_background");
   detail_background.style.display = "block";
   if (element.isStream && !element.isSpace) {
-    docQuery(
-      ".detail_thumnail",
-    ).src = `https://static-cdn.jtvnw.net/previews-ttv/live_user_${element.name}-380x213.jpg`;
+    const bno = ipcRenderer.sendSync("getBno", element.name);
+    docQuery(".detail_thumnail").src = `https://liveimg.afreecatv.com/m/${bno}`;
     docQuery(".detail_info_button p").innerText = diffTimeTemp[element.name];
     nameTemp = element.name;
     typeTemp = "stream";
@@ -179,10 +178,6 @@ function moreInfoEvent(element) {
       store.set(`space_auto_start.${element.name}.enabled`, evt.target.checked);
     },
   );
-  const channelPoint = ipcRenderer.invoke("getChannelPoint", element.name);
-  channelPoint.then((res) => {
-    docQuery(".detail_info_points span").innerText = res;
-  });
 }
 
 info.forEach((element, i) => {

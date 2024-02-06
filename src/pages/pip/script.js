@@ -25,6 +25,7 @@ hls.attachMedia(video);
 hls.on(Hls.Events.MANIFEST_PARSED, () => {
   video.play();
 });
+console.log(store.get(`pip_options.${params.name}`));
 video.volume = store.get(`pip_options.${params.name}.volume`);
 video.addEventListener("loadedmetadata", () => {
   video.currentTime = video.duration - 3;
