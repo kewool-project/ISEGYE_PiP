@@ -271,7 +271,7 @@ docQuery(".control_time .control_thumb").addEventListener("mousedown", (e) => {
 });
 
 docQuery(".control_chat").addEventListener("click", () => {
-  ipcRenderer.send("openChat", params.name, "stream");
+  // ipcRenderer.send("openChat", params.name, "stream");
 });
 
 docQuery(".control_play").addEventListener("click", () => {
