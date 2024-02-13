@@ -468,9 +468,7 @@ ipcMain.on("closeAllPIP", () => {
 });
 
 ipcMain.on("isStreamOff", async (evt, name) => {
-  const isStream = (await apiClient.streams.getStreamByUserName(name))
-    ? true
-    : false;
+  const isStream = (await lib.getUserById(channelId)).content.openLive;
   if (!isStream) store.set(`auto_start.${name}.closed`, false);
 });
 
@@ -533,8 +531,10 @@ ipcMain.on("getSpace", async (evt, name) => {
       store.get("twitter_csrf_token"),
       store.get("twitter_auth_token"),
     );
-    createSpaceWin(spaceM3U8, name);
     store.set(`space_auto_start.${name}.status`, true);
+    setTimeout(() => {
+      createSpaceWin(spaceM3U8, name);
+    }, 10000);
   }
 });
 
