@@ -232,6 +232,24 @@ body {
   cursor: pointer;
   transform: translateY(-40%);
 }
+.controls_bottom .control_time .move_time {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+.controls_bottom .control_time .move_time p {
+  color: #ffffff;
+  font-family: "SUIT";
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%;
+  display: flex;
+  align-items: center;
+  margin-left: 16px;
+  cursor: pointer;
+}
 .controls_bottom .control_chat {
   display: flex;
   width: 32px;

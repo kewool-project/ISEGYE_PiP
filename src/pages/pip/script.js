@@ -284,6 +284,18 @@ docQuery(".control_play").addEventListener("click", () => {
   }
 });
 
+function minus10Sec() {
+  video.currentTime = Math.max(video.currentTime - 10, 3);
+}
+function plus10Sec() {
+  const newTime = video.currentTime + 10;
+  if (newTime < video.duration) {
+    video.currentTime = newTime;
+  } else {
+    video.currentTime = video.duration - 1;
+  }
+}
+
 function panelMouseEnter() {
   console.log("panelMouseEnter");
   ipcRenderer.send("fixedPIP", true, { forward: true });

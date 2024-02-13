@@ -468,12 +468,14 @@ ipcMain.on("closeAllPIP", () => {
 });
 
 ipcMain.on("isStreamOff", async (evt, name) => {
-  const isStream = (await lib.getUserById(channelId)).content.openLive;
+  const live = await lib.getLiveByName(name);
+  const isStream = live.CHANNEL.RESULT;
   if (!isStream) store.set(`auto_start.${name}.closed`, false);
 });
 
 ipcMain.on("isStreamOffWhileOn", async (evt, userName) => {
-  const isStream = (await lib.getUserByName(userName)).content.openLive;
+  const live = await lib.getLiveByName(userName);
+  const isStream = live.CHANNEL.RESULT;
   if (!isStream) {
     streamWin[userName].pip.close();
     streamWin[userName].pip = null;
