@@ -296,14 +296,14 @@ app.on("ready", () => {
     store.set("space_options", space_options);
   }
   const filter = {
-    urls: ["https://*.afreecatv.com/*"],
+    urls: ["https://*.sooplive.co.kr/*"],
   };
   session.defaultSession.webRequest.onBeforeSendHeaders(
     filter,
     (details, callback) => {
       details.requestHeaders["User-Agent"] =
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36";
-      details.requestHeaders["Referer"] = "https://play.afreecatv.com/";
+      details.requestHeaders["Referer"] = "https://play.sooplive.co.kr/";
       callback({ cancel: false, requestHeaders: details.requestHeaders });
     },
   );

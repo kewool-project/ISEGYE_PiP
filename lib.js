@@ -1,8 +1,6 @@
 const { BrowserWindow } = require("electron");
 const https = require("https");
 
-const clientId = "kimne78kx3ncx6brgo4mv6wki5h1ko";
-
 function getLiveByName(name) {
   const data = {
     bid: name,
@@ -15,7 +13,7 @@ function getLiveByName(name) {
   };
 
   const options = {
-    hostname: "live.afreecatv.com",
+    hostname: "live.sooplive.co.kr",
     port: 443,
     path: `/afreeca/player_live_api.php?bjid=${name}`,
     method: "POST",
@@ -49,7 +47,7 @@ function getLiveByName(name) {
 
 function getUserByName(name) {
   const options = {
-    hostname: "st.afreecatv.com",
+    hostname: "st.sooplive.co.kr",
     port: 443,
     path: `/api/get_station_status.php?szBjId=${name}`,
     method: "GET",
@@ -89,7 +87,7 @@ async function getPlaylist(name, bno) {
   };
 
   const aidOptions = {
-    hostname: "live.afreecatv.com",
+    hostname: "live.sooplive.co.kr",
     port: 443,
     path: `/afreeca/player_live_api.php?bjid=${name}`,
     method: "POST",
@@ -121,9 +119,9 @@ async function getPlaylist(name, bno) {
   });
 
   const viewUrlOptions = {
-    hostname: "livestream-manager.afreecatv.com",
+    hostname: "livestream-manager.sooplive.co.kr",
     port: 443,
-    path: `/broad_stream_assign.html?return_type=gs_cdn_pc_web&use_cors=true&cors_origin_url=play.afreecatv.com&broad_key=${bno}-common-master-hls&time=3072.3733594524338`,
+    path: `/broad_stream_assign.html?return_type=gs_cdn_pc_web&use_cors=true&cors_origin_url=play.sooplive.co.kr&broad_key=${bno}-common-master-hls&time=3072.3733594524338`,
   };
 
   const viewUrl = await new Promise((resolve, reject) => {
@@ -147,7 +145,7 @@ async function getPlaylist(name, bno) {
     port: 443,
     path: `/${viewUrl.split("/").slice(3).join("/")}?aid=${aid.CHANNEL.AID}`,
     headers: {
-      Referer: "https://play.afreecatv.com/",
+      Referer: "https://play.sooplive.co.kr/",
     },
   };
 
@@ -186,7 +184,7 @@ async function getPlaylist(name, bno) {
 
       req.end();
     }),
-    viewUrl,
+    viewUrl: viewUrl.split("/").slice(0, -1).join("/"),
   };
 }
 
@@ -221,7 +219,7 @@ function getStream(name, bno) {
 
 function getLastStreamDate(userName) {
   const options = {
-    hostname: "bjapi.afreecatv.com",
+    hostname: "chapi.sooplive.co.kr",
     port: 443,
     path: `/api/${userName}/station`,
     method: "GET",
