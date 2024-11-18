@@ -194,7 +194,7 @@ function parsePlaylist(playlist) {
   lines.shift();
   lines.pop();
   for (let i = 0; i < lines.length; i += 2) {
-    if (!lines[i].includes("1080")) continue;
+    if (!lines[i].includes("540")) continue;
     parsedPlaylist.push({
       quality: lines[i].split("NAME=")[1].split(",")[0],
       resolution: lines[i].split("RESOLUTION=")[1].split("\r")[0],
